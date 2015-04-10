@@ -2,7 +2,7 @@
 # Feel free (and in fact I recommment) editing this, running it in your
 # own R environment, and seeing what you can do.
 # Author: Sam Pollard (sam.d.pollard@gmail.com)
-# Last Modified: 9 April 2015
+# Last Modified: 10 April 2015
 # Note: This file can be run as is, but won't do very much if not run
 # in interpreted mode. If you want to run the whole thing at once but
 # still see output, you can sprinkle some calls to print throughout.
@@ -32,7 +32,7 @@ volume <- trees["Volume"]  # 4. The Volume of each tree
 lifespan <- lifespan + 15
 
 # Some helpful functions
-classof(volume)
+class(volume)
 volumevec <- trees[["Volume"]] # 5.
 class(volumevec)
 ls() # List all the variables in the current workspace
@@ -48,7 +48,7 @@ mydf <- mydf[,-1]
 sample <- mydf[seq(4,9),]
 
 # 4. Plotting
-noisy_data <- rnorm(500)*sample(2000:5000,500)
-measured_cats <- ceiling(noisy_trend^2 * sample(2000:5000,500))
-time <- seq(0,499)
-plot(time, measured_cats)
+noisy_data <- runif(100, 0, 15) + 10
+noisy_data <- noisy_data + seq(from = 0, to = 10, length.out = 100)^2
+time <- seq(0,99)
+plot(time, noisy_data)

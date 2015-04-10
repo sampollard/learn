@@ -193,7 +193,16 @@ R has very powerful plotting features. They are described as ``beautiful'' by da
 
 The Resources section contains a link to a web page describing the \verb|par| function, which can be thought of as \emph{parameters} for plotting. Because of R's default function arguments, you will almost never have to worry about all of the dozens of parameters.
 
-Without further ado, below is an extended example which plots a bunch of random points and fits a curve to it. Which if you think about it, is the solution to about half of all scientific problems.
+Without further ado, below is an extended example which plots a bunch of (simulated) noisy data and fits a curve to it. Which realistically is the solution to about half of all scientific problems.
+
+\begin{verbatim}
+noisy_data <- runif(100, 0, 15) + 10                                   # 1.
+noisy_data <- noisy_data + seq(from = 0, to = 10, length.out = 100)^2  # 2.
+time <- seq(0,99)                                                      # 3.
+plot(time, noisy_data)                                                 # 4.
+\end{verbatim}
+
+The first two lines create some made up data. Specifically, the ``noise'' is simulated with a uniform distribution of random numbers between 10 and 25. This puts the mean at $17.5$. Line 2 adds to this a vector where the first the first element is 0, the second element is $0.\overline{101}$, the third is $0.\overline{202}$, and so on until the 100th is 10. We have seen \verb|seq| before and is a more general use of the function. Squaring the points created from \verb|seq| gives points from the quadratic $f(x) = x^2$. Putting this all together means the noisy data is best fit by the function $x^2 + 17.5$. Hopefully, a least-squares approximation will yield a curve close to that.
 
 % To add:
 
