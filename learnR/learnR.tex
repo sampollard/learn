@@ -31,15 +31,15 @@
 
 \section{Introduction}
 
-This guide is meant for people with little or no programming experience. That being said, this guide moves quickly and is aimed towards people who have spent a lot of time learning. There are many guides for programming which are aimed at computer scientists and use lots of jargon computer scientists have heard for years. This can be difficult to understand. On the other hand, many guides are too simplified such that you can't really do anything interesting with the material taught. This guide attempts to provide meaningful examples and explain the concepts which cannot be easily Googled. This guide comes with a supplementary R file which contains all of the example code used in this guide. If you have any feedback please mail me at \url{sam.d.pollard@gmail.com}
+This guide is meant for people with little or no programming experience. That being said, this guide moves quickly and is aimed towards people who have spent a lot of time learning. There are many guides for programming which are aimed at computer scientists and use lots of jargon computer scientists have heard for years. This can be difficult to understand. On the other hand, many guides use such simple examples that you can't really do anything interesting with what you learn. This guide attempts to provide meaningful examples and explain the concepts which cannot be easily Googled. This guide comes with a supplementary R file which contains all of the example code used in this guide. If you have any feedback please mail me at \url{sam.d.pollard@gmail.com}
 
 R is what is called an \emph{open} project. That means that anyone can contribute to R. This results in a large number of what are called \emph{packages}, which consist of a bunch of R files which ``work together'' to provide a service. This also results in R being really really huge in terms of the number of features it provides.
 
 To install R, you must download it. I found the easiest way to do this is to go to \url{http://cran.cs.wwu.edu/}, which is hosted by WWU. You then install it like any normal program.
 
-There are two basic ways to interact with R. One is in \emph{interactive} mode, the other is by reading in a source file. The latter can be done in windows by clicking \emph{File} then \emph{Source R Code\dots}. Alternatively, you can edit an R source file by clicking \emph{File} then \emph{Open Script}. Interactive mode is useful for temporary or scratch work, while saving the commands you want to run into a text file and running them is more useful for automation and running experiments more than once.
+There are two basic ways to interact with R. One is in \emph{interactive} mode, the other is by executing a source file (called \emph{batch processing}). The latter can be done in Windows by clicking \emph{File} then \emph{Source R Code\dots}. Alternatively, you can edit an R source file by clicking \emph{File} then \emph{Open Script}. Interactive mode is useful for temporary or scratch work, while saving the commands you want to run into a text file and running them is more useful for automation and running experiments more than once.
 
-Here is a sample run using interactive mode. The \verb|[1]| symbol is a way of saying ``here is the first element of the output which you're not storing anywhere.''\footnote{Technically, it refers to the first element of a one-element vector. These will be explained later.} As we will see, it is common to store the output (or \emph{return value}) of a function call in a variable. The symbol \verb|> | is called a \emph{prompt}, which is the interpreter's (we'll define what that is later) way of saying ``I'm ready to process another command.'' Anything following a \# is a comment. This is to make the commands more human-readable, but are ignored by R entirely.
+Here is a sample run using interactive mode. Don't worry if much of this doesn't make sense; each component will be explained.
 
 \begin{verbatim}
 > data(trees) # Load a sample dataset
@@ -55,8 +55,13 @@ Here is a sample run using interactive mode. The \verb|[1]| symbol is a way of s
    Girth   Height   Volume 
 13.24839 76.00000 30.17097
 \end{verbatim}
+The \verb|[1]| symbol is a way of saying ``here is the first element of the output which you're not storing anywhere.''\footnote{Technically, it refers to the first element of a one-element vector. These will be explained later.} As we will see, it is common to store the output (or \emph{return value}) of a function call in a variable. This is explained in the next section, but in this example the return value of the function calls are just printed for the user to view.
 
-The last command is a bit complicated but fits with intuition. The \verb|apply| function takes as an argument some \emph{data frame} (in this case \verb|trees|), a 1 (for row), 2 (for columns), and a function (\verb|mean| here), and applies that function to each row or column in the data set. It is generally considered good practice to use built-in functions or ``one-liners'' such as \verb|apply| because they make code easier to understand and maintain.
+It is important to keep in mind while programming R that almost everything is a function call. A \emph{function} is simply an object which takes in arguments and returns a value. For example, in math we write $f(x, y) = x^2 + y^2$ to describe a function $f$ which takes in two numbers and returns a third number. In R, we have something like \verb|nrow(trees)| which takes as input the variable \verb|trees| and returns the number of rows that variable contains. This is a general from of function calling, which follows the notation from mathematics: the function name followed by the arguments in parentheses. Functions are so important in R that after reading this guide the word ``function'' might sound weird.
+
+The symbol \verb|> | is called a \emph{prompt}, which is the interpreter's (we'll define what that is later) way of saying ``I'm ready to process another command.'' Anything following a \# is a comment. This is to make the commands more human-readable, but are ignored by R entirely.
+
+The last command is a bit complicated but fits with intuition. The \verb|apply| function takes as an argument some \emph{data frame} (in this case \verb|trees|), a 1 or 2 (1 for rows, 2 for columns), and a function (\verb|mean| here), and applies that function to each row or column in the data set. It is generally considered good practice to use built-in functions or ``one-liners'' such as \verb|apply| because they make code easier to understand and maintain.
 
 \section{Basic Syntax and Examples}
 
@@ -78,7 +83,7 @@ In the first example, the object \verb|trees| is what is called a \emph{data fra
 3             3   Li 6.9410
 \end{verbatim}
 
-A few remarks are in order. First, the \verb|<-| symbol is used. This performs an \emph{assignment} of the right-hand value to the left-hand value. The \verb|<-| symbol is read as ``gets.'' This is the official way to do things, but you will often see code such as \verb|name = c("H","He","Li")| instead, which is also assignment (this is common syntax in other programming languages). I recommend using \verb|<-| because \verb|=| is used in another context in R, and it makes the distinction clearer. The fourth line calls the \verb|data.frame| function which takes as input some number of vectors and returns a data frame. This return value is stored in the variable \verb|mydf|. This is a general from of function calling, which follows the notation from mathematics: the function name followed by the arguments in parentheses. The name, mass, and atomic\_number form the \emph{header} of the data frame. Sometimes data sets have headers, sometimes they don't. When loading in a csv you may specify whether you want R to try to put the first row as the header.
+A few remarks are in order. First, the \verb|<-| symbol is used. This performs an \emph{assignment} of the right-hand value to the left-hand value. The \verb|<-| symbol is read as ``gets.'' This is the official way to do things, but you will often see code such as \verb|name = c("H","He","Li")| instead, which is also assignment (this is common syntax in other programming languages). I recommend using \verb|<-| because \verb|=| is used in another context in R, and it makes the distinction clearer. The fourth line calls the \verb|data.frame| function which takes as input some number of vectors and returns a data frame. This return value is stored in the variable \verb|mydf|.  The name, mass, and atomic\_number form the \emph{header} of the data frame. Sometimes data sets have headers, sometimes they don't. When loading in a csv you may specify whether you want R to try to put the first row as the header.
 
 Unlike most other programming languages, the period can be used in variable names. It is typically used to denote a more specific way to go about things. For example, the function \verb|read| is used in a lot of contexts: It can be used to ask the user for input, it can read files, and many other things. A very useful ``version'' of \verb|read| is \verb|read.csv|, which takes in a csv file and turns it into a data frame.
 
@@ -211,7 +216,7 @@ The first two lines create some made up data. Specifically, the ``noise'' is sim
 % Save output to a file
 
 \section{Resources}
-Arguably the most useful resource you can make use of in R is the \verb|help| function. You pass \verb|help| any function as an argument, which will direct you to an online help source. For example, \verb|help(rbind)|.This is the same as \verb|?rbind|.
+Arguably the most useful resource you can make use of in R is the \verb|help| function. You pass \verb|help| any function as an argument, which will direct you to an online help source. For example, \verb|help(rbind)|. This is the same as \verb|?rbind|.
 
 Here are some other resources.
 \begin{itemize}

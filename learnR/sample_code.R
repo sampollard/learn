@@ -51,4 +51,7 @@ sample <- mydf[seq(4,9),]
 noisy_data <- runif(100, 0, 15) + 10
 noisy_data <- noisy_data + seq(from = 0, to = 10, length.out = 100)^2
 time <- seq(0,99)
+# quadratic interpreted as f(x) = a x^2 + b where a and b are parameters
+quadratic <- noisy_data ~ time^2
+nls(quadratic)
 plot(time, noisy_data)
