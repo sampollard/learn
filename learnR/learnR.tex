@@ -1,6 +1,6 @@
 % How to use R
 % Author: Sam Pollard (sam.d.pollard@gmail.com)
-% Last Modified: April 9, 2015
+% Last Modified: April 12, 2015
 
 \documentclass[12pt]{article}
 \usepackage[margin=1in, headheight=15pt]{geometry}
@@ -11,8 +11,8 @@
 \usepackage{fancyhdr}
 \renewcommand{\headrulewidth}{0pt}
 \setlength{\headheight}{15pt} % If two lines in the header, make 30pt
-\usepackage{graphicx}
-\usepackage{hyperref}
+
+\usepackage{graphicx, hyperref, fancyvrb}
 
 \pagestyle{fancy}
 \lhead{Learn you some R}
@@ -33,6 +33,8 @@
 
 This guide is meant for people with little or no programming experience. That being said, this guide moves quickly and is aimed towards people who have spent a lot of time learning. There are many guides for programming which are aimed at computer scientists and use lots of jargon computer scientists have heard for years. This can be difficult to understand. On the other hand, many guides use such simple examples that you can't really do anything interesting with what you learn. This guide attempts to provide meaningful examples and explain the concepts which cannot be easily Googled. This guide comes with a supplementary R file which contains all of the example code used in this guide. If you have any feedback please mail me at \url{sam.d.pollard@gmail.com}
 
+A word on notation: things written in \verb|this font| represent things which are typed exactly into R or the output of running commands. Things in \emph{this font} are either meant to be emphasized, vocabulary used by R, mathematical notation, or emphasis added by me. It should be clear from the context.
+
 R is what is called an \emph{open} project. That means that anyone can contribute to R. This results in a large number of what are called \emph{packages}, which consist of a bunch of R files which ``work together'' to provide a service. This also results in R being really really huge in terms of the number of features it provides.
 
 To install R, you must download it. I found the easiest way to do this is to go to \url{http://cran.cs.wwu.edu/}, which is hosted by WWU. You then install it like any normal program.
@@ -41,10 +43,23 @@ There are two basic ways to interact with R. One is in \emph{interactive} mode, 
 
 Here is a sample run using interactive mode. Don't worry if much of this doesn't make sense; each component will be explained.
 
-\begin{verbatim}
+\begin{Verbatim}[frame=single, fontsize=\small]
 > data(trees) # Load a sample dataset
 > nrow(trees) # Count the sample size
 [1] 31
+> trees # Take a look at our data (Will print every row!)
+> trees
+   Girth Height Volume
+1    8.3     70   10.3
+2    8.6     65   10.3
+3    8.8     63   10.2
+         .
+         .
+ (Skipped for brevity)
+         .
+         .
+30  18.0     80   51.0
+31  20.6     87   77.0
 > colnames(trees)
 [1] "Girth"  "Height" "Volume"
 > max(trees["Volume"]) # Find the largest in the column
@@ -54,12 +69,14 @@ Here is a sample run using interactive mode. Don't worry if much of this doesn't
 > apply(trees, 2, mean)
    Girth   Height   Volume 
 13.24839 76.00000 30.17097
-\end{verbatim}
+\end{Verbatim}
 The \verb|[1]| symbol is a way of saying ``here is the first element of the output which you're not storing anywhere.''\footnote{Technically, it refers to the first element of a one-element vector. These will be explained later.} As we will see, it is common to store the output (or \emph{return value}) of a function call in a variable. This is explained in the next section, but in this example the return value of the function calls are just printed for the user to view.
 
 It is important to keep in mind while programming R that almost everything is a function call. A \emph{function} is simply an object which takes in arguments and returns a value. For example, in math we write $f(x, y) = x^2 + y^2$ to describe a function $f$ which takes in two numbers and returns a third number. In R, we have something like \verb|nrow(trees)| which takes as input the variable \verb|trees| and returns the number of rows that variable contains. This is a general from of function calling, which follows the notation from mathematics: the function name followed by the arguments in parentheses. Functions are so important in R that after reading this guide the word ``function'' might sound weird.
 
-The symbol \verb|> | is called a \emph{prompt}, which is the interpreter's (we'll define what that is later) way of saying ``I'm ready to process another command.'' Anything following a \# is a comment. This is to make the commands more human-readable, but are ignored by R entirely.
+There are some functions which take no arguments. For example, a useful function is \verb|data()|. Calling this function in the interpreter will open up a window which lists dozens of sample data sets, \verb|trees| being the one I chose for this guide.
+
+The symbol \verb|>| is called a \emph{prompt}, which is the interpreter's (we'll define what that is later) way of saying ``I'm ready to process another command.'' Anything following a \# is a comment. This is to make the commands more human-readable, but are ignored by R entirely.
 
 The last command is a bit complicated but fits with intuition. The \verb|apply| function takes as an argument some \emph{data frame} (in this case \verb|trees|), a 1 or 2 (1 for rows, 2 for columns), and a function (\verb|mean| here), and applies that function to each row or column in the data set. It is generally considered good practice to use built-in functions or ``one-liners'' such as \verb|apply| because they make code easier to understand and maintain.
 
@@ -71,17 +88,17 @@ One potential drawback of an interpreted language is it can be difficult to find
 
 In the first example, the object \verb|trees| is what is called a \emph{data frame}. In R, this is denoted \verb|data.frame|. This can be thought of as your typical spreadsheet format: A bunch of columns together. The one restriction is that each column must have equal length. Here is a quick example:
 
-\begin{verbatim}
+\begin{Verbatim}[frame=single, fontsize=\small]
 > name <- c("H","He","Li")       # c can be thought of as "combine"
 > mass <- c(1.0079,4.0026,6.941) # i.e. make a vector from the arguments
 > atomic_number <- seq(1,length(name))
 > mydf <- data.frame(atomic_number, name, mass)
-> mydf                          # Print out the data.frame
+> mydf                           # Print out the data.frame
   atomic_number name   mass
 1             1    H 1.0079
 2             2   He 4.0026
 3             3   Li 6.9410
-\end{verbatim}
+\end{Verbatim}
 
 A few remarks are in order. First, the \verb|<-| symbol is used. This performs an \emph{assignment} of the right-hand value to the left-hand value. The \verb|<-| symbol is read as ``gets.'' This is the official way to do things, but you will often see code such as \verb|name = c("H","He","Li")| instead, which is also assignment (this is common syntax in other programming languages). I recommend using \verb|<-| because \verb|=| is used in another context in R, and it makes the distinction clearer. The fourth line calls the \verb|data.frame| function which takes as input some number of vectors and returns a data frame. This return value is stored in the variable \verb|mydf|.  The name, mass, and atomic\_number form the \emph{header} of the data frame. Sometimes data sets have headers, sometimes they don't. When loading in a csv you may specify whether you want R to try to put the first row as the header.
 
@@ -93,28 +110,28 @@ Consider the following example, which will allow us to read in a csv and allow u
 > mydf <- read.csv("report.csv", header = TRUE, sep = ",")
 \end{verbatim}
 
-The last argument is the \emph{separator}. This may be whatever you want. Cryptically, a csv (comma separated value) file may not be separated by commas. Oftentimes, it is tab-separated. To accomodate this, one can say \verb|sep = "\t"|. The backslash here \emph{escapes} the succeeding character \verb|t| and instead interprets this as a tab.
+The last argument is the \emph{separator}. This may be whatever you want. Cryptically, a csv (comma separated value) file may not be separated by commas. Oftentimes, it is tab-separated. To accommodate this, one can say \verb|sep = "\t"|. The backslash here \emph{escapes} the succeeding character \verb|t| and instead interprets this as a tab.
 
 \section{Some Subtleties}
 \subsection{Vectors}
 The previous example used the \verb|c| function. The reason this is used is to put data in the correct format. This is an important part of R and programming in general. The distinction here is between a \emph{vector} and a \emph{scalar}. This fits with mathematical intuition but not so much with the real world. Ask a mathematician what a vector is and she will respond, ``It is something that behaves like a vector.'' While this is sort of a joke, there really isn't any better definition. In R, vectors are all over the place. Here are some examples and a non-example (can you spot which?)
-\begin{verbatim}
-n <- nrow(trees)           # 1. The number of trees
-tag <- seq(1,n)            # 2. A sequence from 1 to n, inclusive
-lifespan <- 70*runif(n)    # 3. Random values between 0 and 70, inclusive
-volume <- trees["Volume"]  # 4. The Volume of each tree
-\end{verbatim}
+\begin{Verbatim}[frame=single, fontsize=\small, numbers=left]
+n <- nrow(trees)           # The number of trees
+tag <- seq(1,n)            # A sequence from 1 to n, inclusive
+lifespan <- 70*runif(n)    # Random values between 0 and 70, inclusive
+volume <- trees["Volume"]  # The Volume of each tree
+\end{Verbatim}
 
 The last example is \emph{not} a vector. It is a data frame. This means things that require vectors won't work on the data frame. For example,
-\begin{verbatim}
+\begin{Verbatim}[frame=single, fontsize=\small]
 > mean(volume)
 [1] NA
 Warning message:
 In mean.default(volume) : argument is not numeric or logical: returning NA
-\end{verbatim}
+\end{Verbatim}
 However, if we make a small modification:
 \begin{verbatim}
-> volumevec <- trees[["Volume"]] # 5.
+> volumevec <- trees[["Volume"]]
 \end{verbatim}
 This \emph{is} a vector.
 
@@ -122,7 +139,7 @@ If you're stuck, the \verb|class| function may describe what sort of data you're
 
 But what about the first example? Is it a vector? In some sense, yes. A vector can have one element. It is easiest to think of a scalar as the special vector which has one element. In general, most things you can do with scalars you can do with vectors. For example,
 \begin{verbatim}
-lifespan <- lifespan + 15
+> lifespan <- lifespan + 15
 \end{verbatim}
 would increase the \verb|lifespan| variable by 15 (add 15 to each element in lifespan). Notice that this statement contains lifespan on the right-hand side and the left-hand side. In English we would say, ``take each element in lifespan and add 15 to it, storing the result in the variable lifespan.''\
 
@@ -139,9 +156,9 @@ Now, to create a new data frame from the existing data we created, try
 \begin{verbatim}
 > mydf <- cbind(treenames, trees, lifespan)
 \end{verbatim}
-This is close to what we want. The function \verb|cbind| takes as input data frames or vectors, and combines them \emph{by column} into a new data frame. There is an analagous function called \verb|rbind| which combines the data by row. Here is what the first few entries look like:
+This is close to what we want. The function \verb|cbind| takes as input data frames or vectors, and combines them \emph{by column} into a new data frame. There is an analogous function called \verb|rbind| which combines the data by row. Here is what the first few entries look like:
 
-\begin{verbatim}
+\begin{Verbatim}[frame=single, fontsize=\small]
 > head(mydf)
   treenames Girth Height Volume lifespan
 1        T1   8.3     70   10.3 15.18891
@@ -150,7 +167,7 @@ This is close to what we want. The function \verb|cbind| takes as input data fra
 4        T4  10.5     72   16.4 15.30183
 5        T5  10.7     81   18.8 15.86208
 6        T6  10.8     83   19.7 15.87640
-\end{verbatim}
+\end{Verbatim}
 By the way, \verb|head| is a nice way to just see the beginning of a data frame (it is common to deal with thousands of rows of data). But this doesn't look quite right: the row names are just 1, 2, 3, \dots when we want them to represent our cleverly-named tree names. R allows us to change row names and column names using the aptly-named functions \verb|rownames| and \verb|colnames|. So,
 \begin{verbatim}
 > rownames(mydf) <- treenames
@@ -158,7 +175,7 @@ By the way, \verb|head| is a nice way to just see the beginning of a data frame 
 We can also retrieve the row or column names by putting this function call on the right-hand side of an assignment like so: \verb|names <- rownames(mydf)|. To anyone with programming experience, this is a bit strange. The function can be used both as an \emph{l}-value, a.k.a. the left-hand side of an assignment statement a.k.a. the location of the variable getting changed) and an \emph{r}-value, a.k.a. the right-hand side of an assignment statement a.k.a. the return value of a function call. This is where the \verb|<-| notation keeps us sane: it directs us where the data we computed is being stored.
 
 However, this data frame looks a bit strange:
-\begin{verbatim}
+\begin{Verbatim}[frame=single, fontsize=\small]
 > head(mydf)
    treenames Girth Height Volume lifespan
 T1        T1   8.3     70   10.3 15.18891
@@ -167,13 +184,13 @@ T3        T3   8.8     63   10.2 15.41223
 T4        T4  10.5     72   16.4 15.30183
 T5        T5  10.7     81   18.8 15.86208
 T6        T6  10.8     83   19.7 15.87640
-\end{verbatim}
+\end{Verbatim}
 So let's delete that first row:
 \begin{verbatim}
 > mydf <- mydf[,-1]
 \end{verbatim}
 
-That is some cryptic R code. There are other ways to accomplish the same task, but this one easily generalizes. In general, we access things by \verb|[row, column]|. So by default, we are accessing \emph{every} row. That is, there is nothing preceeding the comma. Now, we are accessing every column but the first one (think of \verb|-| as removing the first column). Alternatively, we could \emph{include} every other column. So
+That is some cryptic R code. There are other ways to accomplish the same task, but this one easily generalizes. In general, we access things by \verb|[row, column]|. So by default, we are accessing \emph{every} row. That is, there is nothing preceding the comma. Now, we are accessing every column but the first one (think of \verb|-| as removing the first column). Alternatively, we could \emph{include} every other column. So
 \begin{verbatim}
 > mydf <- mydf[,c(2,3,4,5)]
 \end{verbatim}
@@ -189,41 +206,116 @@ This takes the 4th through 9th rows of \verb|mydf|.
 
 
 \subsection{Default Parameters}
-
 Returning to the first example of creating the tree names, we had to specify that \verb|sep = ""|, or the \emph{empty string}. If this was left out, i.e. \verb|paste("T",tag)|, then by default the strings are concatenated using a space as separator. We would get \verb|T 15| instead of \verb|T15|. Why is this? The motivation behind this is that most of the time a user will want the values separated by spaces. Without anything, there is the \emph{default parameter} for \verb|sep|, which is a space. Parameter specification takes the general form \verb|tag = value|. This is common notation, and \verb|=| is the character to use when specifying these parameters.
 
-\section{Plotting}
+\section{Regression and Plotting}
 
-R has very powerful plotting features. They are described as ``beautiful'' by data visualization geeks. One reason for this is that R can output in vector formats, which is to say they scale to any size. There may be many more supported filetypes, but arguably the most important are png and pdf which this guide will explain.
+This section will first gather some data and curves to be plot using R's regression features. These will be plotted but the output will be the default, plain format. Next, more advanced plotting features will be exploited to improve the quality of the figures and allow saving of the figures in multiple file formats.
 
-The Resources section contains a link to a web page describing the \verb|par| function, which can be thought of as \emph{parameters} for plotting. Because of R's default function arguments, you will almost never have to worry about all of the dozens of parameters.
+\subsection{Regression}
+Below is an extended example which plots a bunch of (simulated) noisy data and fits a curve to it. Which realistically is the solution to about half of all scientific problems.
 
-Without further ado, below is an extended example which plots a bunch of (simulated) noisy data and fits a curve to it. Which realistically is the solution to about half of all scientific problems.
+\begin{Verbatim}[frame=single, fontsize=\small, numbers=left]
+lb <- 0     # The lower and upper bounds will be used repeatedly
+ub <- 10
+time <- seq(from = lb, to = ub, length.out = 100)
+noisy_data <- rnorm(100, mean = 0, sd = 5) + 10 # Equivalently: rnorm(100,10,5)
+noisy_data <- noisy_data + time^2
+# Make a scatterplot of the data
+plot(time, noisy_data)
+\end{Verbatim}
 
-\begin{verbatim}
-noisy_data <- runif(100, 0, 15) + 10                                   # 1.
-noisy_data <- noisy_data + seq(from = 0, to = 10, length.out = 100)^2  # 2.
-time <- seq(0,99)                                                      # 3.
-plot(time, noisy_data)                                                 # 4.
-\end{verbatim}
+The first two lines create some made up data. Specifically, the ``noise'' is simulated with a normal distribution with mean 0 and standard deviation 5. Since the 10 is added in line 4, this puts the mean at 15. Line 5 adds this noisy data to the square of a sequence of 100 elements going from 0 to 10. For example, \verb|time[1]^2 = 0|, \verb|time[2]^2 = 0.0102|, \dots, \verb|time[99]^2 = 97.99|, and \verb|time[100]^2 = 100| . We have seen \verb|seq| before and this is a more general use of the function. Squaring the points created from \verb|seq| gives points from the quadratic $f(x) = x^2$. Putting this all together means the noisy data \emph{should} be best fit by the curve $x^2 + 10$. Hopefully, a least-squares approximation will yield a curve close to that.
 
-The first two lines create some made up data. Specifically, the ``noise'' is simulated with a uniform distribution of random numbers between 10 and 25. This puts the mean at $17.5$. Line 2 adds to this a vector where the first the first element is 0, the second element is $0.\overline{101}$, the third is $0.\overline{202}$, and so on until the 100th is 10. We have seen \verb|seq| before and is a more general use of the function. Squaring the points created from \verb|seq| gives points from the quadratic $f(x) = x^2$. Putting this all together means the noisy data is best fit by the function $x^2 + 17.5$. Hopefully, a least-squares approximation will yield a curve close to that.
+However, since we know from what distribution the data is sampled, we are dealing in some sense with a ``solved'' problem. Suppose for a while that we don't know the underlying distribution of the data. A valid technique would be to guess the data fits some linear model.
 
+\begin{Verbatim}[frame=single, fontsize=\small, numbers=left]
+linearmodel <- lm(noisy_data ~ time)
+# Get the coefficients to overlay the best-fit line over the scatterplot
+intercept <- coef(linearmodel)[1]
+slope <- coef(linearmodel)[2]
+curve(slope * x + intercept, add = TRUE)
+\end{Verbatim}
+
+Line 1 attempts to fit a linear model to the data. The \verb|~| character (tilde) indicates a \emph{formula} is used. With a linear model, the parameters are implied. That is, \verb|lm| reads in the simple expression \verb|noisy_data ~ time| and from it knows the data on which a regression should be performed and (among other things) \verb|lm| is attempting to find the best $m$ and $b$ which satisfy the equation $f(x) = mx + b$. Here, $m$ and $b$ are the \emph{coefficients}. Let's see how a linear model fits:
+
+\begin{Verbatim}[frame=single, fontsize=\small]
+> summary(linearmodel)
+
+Call:
+lm(formula = noisy_data ~ time)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-17.9099  -6.4711  -0.3945   6.1484  25.6415 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  -5.8118     1.7737  -3.277  0.00145 ** 
+time          9.8648     0.3064  32.191  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 8.935 on 98 degrees of freedom
+Multiple R-squared:  0.9136,	Adjusted R-squared:  0.9127 
+F-statistic:  1036 on 1 and 98 DF,  p-value: < 2.2e-16
+\end{Verbatim}
+This summary is a Type I analysis of variance table. From this, we get a statistically significant result. To see this in more depth, we may call \verb|plot(linearmodel)| which produces several plots of the data. This further indicates the model is biased at the endpoints, suggesting a linear model isn't ideal.
+
+To fit a nonlinear curve to the data we must use a different function, \verb|nls| (nonlinear least squares). Here is how that would be performed:
+\begin{Verbatim}[frame=single, fontsize=\small]
+quadratic <- noisy_data ~ p1*time^2 + p2
+model <- nls(quadratic, start = list(p1=0, p2=0))
+# Plot the new, least-squares quadratic
+p1 <- coef(model)[1]
+p2 <- coef(model)[2]
+curve(p1*x^2 + p2, from = lb, to = ub, add = TRUE)
+\end{Verbatim}
 % To add:
 
-% data()
 % Plot & save plot output as NOT A PDF!
 % Save output to a file
+% The Resources section contains a link to a web page describing the \verb|par| function, which can be thought of as \emph{parameters} for plotting. Because of R's default function arguments, you will almost never have to worry about all of the dozens of parameters.
+
+Now, analysis of variance is an incredibly sophisticated technique which I don't understand well. You'll notice that the nonlinear model does not provide the same depth of analysis with the call to \verb|summary| as the linear model. This is for good reason (see \cite{nlsanova}). However, in this case we can look at the plots and see that a quadratic model fits better.
+
+\subsection{Plotting}
+R has very powerful plotting features. They are described as ``beautiful'' by data visualization geeks. One reason for this is that R can output in vector formats, which is to say they scale to any size. There may be many more supported filetypes, but arguably the most important are png and pdf which this guide will explain.
+
+This section will explain the various uses of the \verb|plot| and \verb|curve| functions used in the previous subsection and expand upon them to produce more sophisticated graphs.
 
 \section{Resources}
 Arguably the most useful resource you can make use of in R is the \verb|help| function. You pass \verb|help| any function as an argument, which will direct you to an online help source. For example, \verb|help(rbind)|. This is the same as \verb|?rbind|.
 
-Here are some other resources.
-\begin{itemize}
-	\item \url{http://learnxinyminutes.com/docs/r/} This is a pretty basic guide but is the easiest to follow.
-	\item \url{https://github.com/sampollard/pcrystal}. This is a bit complicated but I've found looking at other people's code can help.
-	\item \url{http://cran.r-project.org/doc/contrib/Short-refcard.pdf} This is a useful cheat sheet. Much of it won't make sense right away, but will help you with commonly-used functions.
-	\item \url{https://stat.ethz.ch/R-manual/R-patched/library/graphics/html/par.html} This is a documentation file on the \verb|par| function which is used for plots. In general, the stat.ethz.ch website is a good resource (if you come across it in Google searches).
-\end{itemize}
+Here are some other resources. I have not cited every one of the sources I used when creating this guide, but the ones omitted were generally answers from stack exchange or Wikipedia. Thus this can be also thought of as a partial bibliography.
+\begingroup
+\renewcommand{\section}[2]{}%
+%\renewcommand{\chapter}[2]{}% for other classes
+\begin{thebibliography}{}
+	\bibitem{Learnxinyminutes}
+		\url{http://learnxinyminutes.com/docs/r/}
+		This is a pretty basic guide but is the easiest to follow.
+		
+	\bibitem{mycode}
+		\url{https://github.com/sampollard/pcrystal}
+		This is some of my own R source code.
+		
+	\bibitem{shortref}
+		\url{http://cran.r-project.org/doc/contrib/Short-refcard.pdf}
+		This is a useful cheat sheet. Much of it won't make sense right away, but will help you with commonly-used functions.
+		
+	\bibitem{rintro}
+		\url{http://cran.r-project.org/doc/manuals/R-intro.pdf}
+		This is a more in-depth guide to R. Notably, chapter 12 contains a lot of good information on graphics.
+	
+	\bibitem{nlsexample}
+		\url{http://www.walkingrandomly.com/?p=5254}
+		I used this reference in my nonlinear regression example.
+		
+	\bibitem{nlsanova}
+		\url{https://stat.ethz.ch/pipermail/r-help/2000-August/007778.html}
+		This contains a brief answer to why nonlinear models in R don't have the same analysis that linear models get.
+\end{thebibliography}
+\endgroup
 
 \end{document}

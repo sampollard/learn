@@ -25,15 +25,15 @@ mydf <- data.frame(atomic_number, name, mass)
 
 # 3. Some Subtleties
 # 3.1 Vectors
-n <- nrow(trees)           # 1. The number of trees
-tag <- seq(1,n)            # 2. A sequence from 1 to n, inclusive
-lifespan <- 70*runif(n)    # 3. Random values between 0 and 70, inclusive
-volume <- trees["Volume"]  # 4. The Volume of each tree
+n <- nrow(trees)           # The number of trees
+tag <- seq(1,n)            # A sequence from 1 to n, inclusive
+lifespan <- 70*runif(n)    # Random values between 0 and 70, inclusive
+volume <- trees["Volume"]  # The Volume of each tree
 lifespan <- lifespan + 15
 
 # Some helpful functions
 class(volume)
-volumevec <- trees[["Volume"]] # 5.
+volumevec <- trees[["Volume"]]
 class(volumevec)
 ls() # List all the variables in the current workspace
 
@@ -47,11 +47,28 @@ mydf <- mydf[,-1]
 # mydf[1] <- NULL
 sample <- mydf[seq(4,9),]
 
-# 4. Plotting
-noisy_data <- runif(100, 0, 15) + 10
-noisy_data <- noisy_data + seq(from = 0, to = 10, length.out = 100)^2
-time <- seq(0,99)
-# quadratic interpreted as f(x) = a x^2 + b where a and b are parameters
-quadratic <- noisy_data ~ time^2
-nls(quadratic)
+# 4. Regression and Plotting
+# Generate the noisy data and time samples
+lb <- 0
+ub <- 10
+time <- seq(from = lb, to = ub, length.out = 100)
+noisy_data <- rnorm(100, mean = 0, sd = 5) + 10 # Equivalently: rnorm(100,10,5)
+noisy_data <- noisy_data + time^2
+# Make a scatterplot of the data
 plot(time, noisy_data)
+# Try fitting a linear model
+linearmodel <- lm(noisy_data ~ time)
+# Get the coefficients to overlay the best-fit line over the scatterplot
+intercept <- coef(linearmodel)[1]
+slope <- coef(linearmodel)[2]
+curve(slope * x + intercept, add = TRUE)
+linearanalysis <- summary(linearmodel)
+# quadratic interpreted as f(x) = p1 x^2 + p2 where p1 and p2 are parameters
+# Here is the model we guess the data to follow
+quadratic <- noisy_data ~ p1*time^2 + p2
+model <- nls(quadratic, start = list(p1=0, p2=0))
+# Plot the new, least-squares quadratic
+p1 <- coef(model)[1]
+p2 <- coef(model)[2]
+curve(p1*x^2 + p2, from = lb, to = ub, add = TRUE)
+quadraticanalysis <- summary(model)
