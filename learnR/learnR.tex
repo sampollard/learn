@@ -41,7 +41,7 @@ To install R, you must download it. I found the easiest way to do this is to go 
 
 There are two basic ways to interact with R. One is in \emph{interactive} mode, the other is by executing a source file (called \emph{batch processing}). The latter can be done in Windows by clicking \emph{File} then \emph{Source R Code\dots}. Alternatively, you can edit an R source file by clicking \emph{File} then \emph{Open Script}. Interactive mode is useful for temporary or scratch work, while saving the commands you want to run into a text file and running them is more useful for automation and running experiments more than once.
 
-Here is a sample run using interactive mode. Don't worry if much of this doesn't make sense; each component will be explained.
+Here is a sample run using interactive mode. As this guide progresses I recommend you execute each of the commands from the attached file \verb|sample_code.R|. Don't worry if much of this doesn't make sense; each component will be explained.
 
 \begin{Verbatim}[frame=single, fontsize=\small]
 > data(trees) # Load a sample dataset
@@ -220,12 +220,12 @@ lb <- 0     # The lower and upper bounds will be used repeatedly
 ub <- 10
 time <- seq(from = lb, to = ub, length.out = 100)
 noisy_data <- rnorm(100, mean = 0, sd = 5) + 10 # Equivalently: rnorm(100,10,5)
-noisy_data <- noisy_data + time^2
+noisy_data <- abs(noisy_data) + time^2
 # Make a scatterplot of the data
 plot(time, noisy_data)
 \end{Verbatim}
 
-The first two lines create some made up data. Specifically, the ``noise'' is simulated with a normal distribution with mean 0 and standard deviation 5. Since the 10 is added in line 4, this puts the mean at 15. Line 5 adds this noisy data to the square of a sequence of 100 elements going from 0 to 10. For example, \verb|time[1]^2 = 0|, \verb|time[2]^2 = 0.0102|, \dots, \verb|time[99]^2 = 97.99|, and \verb|time[100]^2 = 100| . We have seen \verb|seq| before and this is a more general use of the function. Squaring the points created from \verb|seq| gives points from the quadratic $f(x) = x^2$. Putting this all together means the noisy data \emph{should} be best fit by the curve $x^2 + 10$. Hopefully, a least-squares approximation will yield a curve close to that.
+The first two lines create some made up data. Specifically, the ``noise'' is simulated with a normal distribution with mean 0 and standard deviation 5. Taking the absolute value of the data (\verb|abs| on line 5) will be nice a bit later when we want to interpret and plot the data. Since the 10 is added in line 4, this puts the mean at 15. Line 5 adds this noisy data to the square of a sequence of 100 elements going from 0 to 10. For example, \verb|time[1]^2 = 0|, \verb|time[2]^2 = 0.0102|, \dots, \verb|time[99]^2 = 97.99|, and \verb|time[100]^2 = 100| . We have seen \verb|seq| before and this is a more general use of the function. Squaring the points created from \verb|seq| gives points from the quadratic $f(x) = x^2$. Putting this all together means the noisy data \emph{should} be best fit by the curve $x^2 + 10$. Hopefully, a least-squares approximation will yield a curve close to that.
 
 However, since we know from what distribution the data is sampled, we are dealing in some sense with a ``solved'' problem. Suppose for a while that we don't know the underlying distribution of the data. A valid technique would be to guess the data fits some linear model.
 
@@ -246,19 +246,19 @@ Call:
 lm(formula = noisy_data ~ time)
 
 Residuals:
-     Min       1Q   Median       3Q      Max 
--17.9099  -6.4711  -0.3945   6.1484  25.6415 
+    Min      1Q  Median      3Q     Max 
+-16.658  -6.204  -1.393   6.674  21.740 
 
 Coefficients:
             Estimate Std. Error t value Pr(>|t|)    
-(Intercept)  -5.8118     1.7737  -3.277  0.00145 ** 
-time          9.8648     0.3064  32.191  < 2e-16 ***
+(Intercept)  -6.3943     1.8774  -3.406 0.000957 ***
+time         10.0070     0.3244  30.852  < 2e-16 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 8.935 on 98 degrees of freedom
-Multiple R-squared:  0.9136,	Adjusted R-squared:  0.9127 
-F-statistic:  1036 on 1 and 98 DF,  p-value: < 2.2e-16
+Residual standard error: 9.458 on 98 degrees of freedom
+Multiple R-squared:  0.9067,	Adjusted R-squared:  0.9057 
+F-statistic: 951.8 on 1 and 98 DF,  p-value: < 2.2e-16
 \end{Verbatim}
 This summary is a Type I analysis of variance table. From this, we get a statistically significant result. To see this in more depth, we may call \verb|plot(linearmodel)| which produces several plots of the data. This further indicates the model is biased at the endpoints, suggesting a linear model isn't ideal.
 
@@ -284,6 +284,49 @@ R has very powerful plotting features. They are described as ``beautiful'' by da
 
 This section will explain the various uses of the \verb|plot| and \verb|curve| functions used in the previous subsection and expand upon them to produce more sophisticated graphs.
 
+Now, suppose we have already created all the required data and gone to assemble a plot like so: (this is simply a compilation of previously shown commands)
+\begin{Verbatim}[frame=single, fontsize=\small]
+plot(time, noisy_data)
+curve(slope * x + intercept, add = TRUE)
+curve(p1*x^2 + p2, add = TRUE)
+\end{Verbatim}
+
+The optional parameter \verb|add = TRUE| states that the curve should be added to an existing plot. The default is false, which is to say each call to \verb|curve| creates a new plot. Now, let's make these plots a bit nicer.
+
+\begin{Verbatim}[frame=single, fontsize=\small, numbers=left]
+pdf("sample_plot.pdf") 
+
+# Make the scatterplot and label the axes
+plot(time, noisy_data, xlab = "Time (months)",
+     ylab = "Number of Cats (millions)")
+# Change the title and marginal text
+title("Number of Cats Over Time", line = 2, cex.main = 1.6)
+mtext("What do we do with all these cats?\nBy Sam Pollard", font = 3,
+      cex = 0.8)
+# Overlay the linear and quadratic best fit curves
+curve(slope * x + intercept, add = TRUE, lwd = 2, col = "red")
+curve(p1*x^2 + p2, add = TRUE, lwd = 2, col = "blue")
+# Create the legend
+quadtext <- paste0(format(round(p1, 2), nsmall = 2), " t^2 + ",
+                   format(round(p2, 2), nsmall = 2))
+linetext <- paste0(format(round(slope, 2), nsmall = 2), " t + ",
+                   format(round(intercept, 2), nsmall = 2))
+legendtext <- c(quadtext, linetext)
+legend("topleft", legend = legendtext, col = c("blue","red"), lwd = c(2,2))
+# Say that we're finished plotting so the pdf can be saved
+dev.off()
+\end{Verbatim}
+
+All this combined makes the nice graphic shown in Fig. 1.
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.7]{sample_plot}
+\end{figure}
+% Other functions: axes
+% TODO: Plot the R values, insert date in the corner, explain all the crazy code I just did.
+
+\vfill
 \section{Resources}
 Arguably the most useful resource you can make use of in R is the \verb|help| function. You pass \verb|help| any function as an argument, which will direct you to an online help source. For example, \verb|help(rbind)|. This is the same as \verb|?rbind|.
 
@@ -315,6 +358,8 @@ Here are some other resources. I have not cited every one of the sources I used 
 	\bibitem{nlsanova}
 		\url{https://stat.ethz.ch/pipermail/r-help/2000-August/007778.html}
 		This contains a brief answer to why nonlinear models in R don't have the same analysis that linear models get.
+	\bibitem{advgraph}
+		\url{http://www.statmethods.net/advgraphs/} Provides explanation of many of the parameters of the \verb|par| and \verb|plot| functions.
 \end{thebibliography}
 \endgroup
 

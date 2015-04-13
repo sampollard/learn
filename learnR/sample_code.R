@@ -2,7 +2,7 @@
 # Feel free (and in fact I recommment) editing this, running it in your
 # own R environment, and seeing what you can do.
 # Author: Sam Pollard (sam.d.pollard@gmail.com)
-# Last Modified: 10 April 2015
+# Last Modified: 12 April 2015
 # Note: This file can be run as is, but won't do very much if not run
 # in interpreted mode. If you want to run the whole thing at once but
 # still see output, you can sprinkle some calls to print throughout.
@@ -48,12 +48,13 @@ mydf <- mydf[,-1]
 sample <- mydf[seq(4,9),]
 
 # 4. Regression and Plotting
+# 4.1 Regression
 # Generate the noisy data and time samples
 lb <- 0
 ub <- 10
 time <- seq(from = lb, to = ub, length.out = 100)
 noisy_data <- rnorm(100, mean = 0, sd = 5) + 10 # Equivalently: rnorm(100,10,5)
-noisy_data <- noisy_data + time^2
+noisy_data <- abs(noisy_data) + time^2
 # Make a scatterplot of the data
 plot(time, noisy_data)
 # Try fitting a linear model
@@ -72,3 +73,28 @@ p1 <- coef(model)[1]
 p2 <- coef(model)[2]
 curve(p1*x^2 + p2, from = lb, to = ub, add = TRUE)
 quadraticanalysis <- summary(model)
+
+# 4.2 Plotting
+# Close the basic plots we were using and start the driver to make a pdf plot
+dev.off()
+pdf("sample_plot.pdf")
+
+# Make the scatterplot and label the axes
+plot(time, noisy_data, xlab = "Time (months)",
+     ylab = "Number of Cats (millions)")
+# Change the title and marginal text
+title("Number of Cats Over Time", line = 2, cex.main = 1.6)
+mtext("What do we do with all these cats?\nBy Sam Pollard", font = 3,
+      cex = 0.8)
+# Overlay the linear and quadratic best fit curves
+curve(slope * x + intercept, add = TRUE, lwd = 2, col = "red")
+curve(p1*x^2 + p2, add = TRUE, lwd = 2, col = "blue")
+# Create the legend
+quadtext <- paste0(format(round(p1, 2), nsmall = 2), " t^2 + ",
+                   format(round(p2, 2), nsmall = 2))
+linetext <- paste0(format(round(slope, 2), nsmall = 2), " t + ",
+                   format(round(intercept, 2), nsmall = 2))
+legendtext <- c(quadtext, linetext)
+legend("topleft", legend = legendtext, col = c("blue","red"), lwd = c(2,2))
+# Say that we're finished plotting so the pdf can be saved
+dev.off()
