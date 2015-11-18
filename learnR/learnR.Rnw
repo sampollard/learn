@@ -23,7 +23,6 @@
 
 \newtheorem{exercise}{Exercise}
 
-\usepackage{Sweave}
 \begin{document}
 \title{Learn you some R}
 \author{Sam Pollard}
@@ -44,40 +43,14 @@ There are two basic ways to interact with R. One is in \emph{interactive} mode, 
 
 Here is a sample run using interactive mode. As this guide progresses I recommend you execute each of the commands from the attached file \verb|learnR.R|. Don't worry if much of this doesn't make sense; each component will be explained.
 
-\begin{Schunk}
-\begin{Sinput}
-> data(trees) # Load a sample dataset
-> nrow(trees) # Count the sample size
-\end{Sinput}
-\begin{Soutput}
-[1] 31
-\end{Soutput}
-\begin{Sinput}
-> colnames(trees)
-\end{Sinput}
-\begin{Soutput}
-[1] "Girth"  "Height" "Volume"
-\end{Soutput}
-\begin{Sinput}
-> max(trees["Volume"]) # Find the largest in the column
-\end{Sinput}
-\begin{Soutput}
-[1] 77
-\end{Soutput}
-\begin{Sinput}
-> max(trees[3]) # The same as above because we access the third column
-\end{Sinput}
-\begin{Soutput}
-[1] 77
-\end{Soutput}
-\begin{Sinput}
-> apply(trees, 2, mean)
-\end{Sinput}
-\begin{Soutput}
-   Girth   Height   Volume 
-13.24839 76.00000 30.17097 
-\end{Soutput}
-\end{Schunk}
+<<Introduction>>=
+data(trees) # Load a sample dataset
+nrow(trees) # Count the sample size
+colnames(trees)
+max(trees["Volume"]) # Find the largest in the column
+max(trees[3]) # The same as above because we access the third column
+apply(trees, 2, mean)
+@
 
 The symbol \verb|>| is called a \emph{prompt}, which is the interpreter's (we'll define what that is later) way of saying ``I'm ready to process another command.'' Anything following a \# is a comment. This is to make the commands more human-readable, but are ignored by R entirely.
 
@@ -97,21 +70,13 @@ One potential drawback of an interpreted language is it can be difficult to find
 
 In the first example, the object \verb|trees| is what is called a \emph{data frame}. In R, this is denoted \verb|data.frame|. This can be thought of as your typical spreadsheet format: A list of a bunch of columns. The one restriction is that each column must have equal length. Here is a quick example:
 
-\begin{Schunk}
-\begin{Sinput}
-> name <- c("H","He","Li")       # c can be thought of as "combine"
-> mass <- c(1.0079,4.0026,6.941) # i.e. make a vector from the arguments
-> atomic_number <- seq(1,length(name))
-> mydf <- data.frame(atomic_number, name, mass)
-> mydf                           # Print out the data.frame
-\end{Sinput}
-\begin{Soutput}
-  atomic_number name   mass
-1             1    H 1.0079
-2             2   He 4.0026
-3             3   Li 6.9410
-\end{Soutput}
-\end{Schunk}
+<<Basic Syntax and Examples>>=
+name <- c("H","He","Li")       # c can be thought of as "combine"
+mass <- c(1.0079,4.0026,6.941) # i.e. make a vector from the arguments
+atomic_number <- seq(1,length(name))
+mydf <- data.frame(atomic_number, name, mass)
+mydf                           # Print out the data.frame
+@
 
 A few remarks are in order. First, the \verb|<-| symbol is used. This performs an \emph{assignment} of the right-hand value to the left-hand value. The \verb|<-| symbol is read as ``gets.'' This is the official way to do things, but you will often see code such as \verb|name = c("H","He","Li")| instead, which is also assignment (this is common syntax in other programming languages). I recommend using \verb|<-| because \verb|=| is used in another context in R, and it makes the distinction clearer. The fourth line calls the \verb|data.frame| function which takes as input some number of vectors and returns a data frame. This return value is stored in the variable \verb|mydf|.  The name, mass, and atomic\_number form the \emph{header} of the data frame. Sometimes data sets have headers, sometimes they don't. When loading in a csv you may specify whether you want R to try to put the first row as the header.
 
@@ -128,31 +93,22 @@ The last argument is the \emph{separator}. This may be whatever you want. Crypti
 \section{Some Subtleties}
 \subsection{Vectors}
 The previous example used the \verb|c| function. The reason this is used is to put data in the correct format. This is an important part of R and programming in general. The distinction here is between a \emph{vector} and a \emph{scalar}. This fits with mathematical intuition but not so much with the real world. Ask a mathematician what a vector is and she will respond, ``It is something that behaves like a vector.'' While this is sort of a joke, there really isn't any better definition. In R, vectors are all over the place. Here are some examples and a non-example (can you spot which?)
-\begin{Schunk}
-\begin{Sinput}
-> n <- nrow(trees)           # The number of trees
-> tag <- seq(1,n)            # A sequence from 1 to n, inclusive
-> lifespan <- 70*runif(n)    # Random values between 0 and 70, inclusive
-> volume <- trees["Volume"]  # The volume of each tree
-\end{Sinput}
-\end{Schunk}
+<<Vectors Part 1>>=
+n <- nrow(trees)           # The number of trees
+tag <- seq(1,n)            # A sequence from 1 to n, inclusive
+lifespan <- 70*runif(n)    # Random values between 0 and 70, inclusive
+volume <- trees["Volume"]  # The volume of each tree
+@
 
 The last example is \emph{not} a vector. It is a data frame. This means things that require vectors won't work on the data frame. For example,
-\begin{Schunk}
-\begin{Sinput}
-> mean(volume)
-\end{Sinput}
-\begin{Soutput}
-[1] NA
-\end{Soutput}
-\end{Schunk}
+<<Vectors Part 2>>=
+mean(volume)
+@
 
 However, if we make a small modification:
-\begin{Schunk}
-\begin{Sinput}
-> volumevec <- trees[["Volume"]]
-\end{Sinput}
-\end{Schunk}
+<<Vectors Part 3>>=
+volumevec <- trees[["Volume"]]
+@
 
 This \emph{is} a vector.
 
