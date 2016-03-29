@@ -9,6 +9,7 @@
 # For example, print(mydf) will achieve the same effect as if you were
 # to type "mydf" (without the quotes) at the prompt.
 
+### Part I
 # 1. Introduction
 data(trees) # Load a sample dataset
 nrow(trees) # Count the sample size
@@ -98,3 +99,10 @@ legendtext <- c(quadtext, linetext)
 legend("topleft", legend = legendtext, col = c("blue","red"), lwd = c(2,2))
 # Say that we're finished plotting so the pdf can be saved
 dev.off()
+
+### Part II
+# 6. Functions
+parenthesize <- function(x, y, z) {
+	sprintf("(%s, %s, %s)", x, y, z)
+}
+

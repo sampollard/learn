@@ -23,13 +23,15 @@
 
 \newtheorem{exercise}{Exercise}
 
-\usepackage{Sweave}
 \begin{document}
-\title{Learn you some R}
-\author{Sam Pollard}
-\date{\today}
-\maketitle
-
+\part{Learn You Some R, Practically}
+\begin{center}
+	\begin{Large}
+	Sam Pollard
+	\end{Large}
+	\\
+	\today
+\end{center}
 \section{Introduction}
 
 This guide is meant for people with little or no programming experience. That being said, this guide moves quickly and is aimed towards people with technical training in some scientific field. There are many guides for programming which are aimed at computer scientists and use lots of jargon computer scientists have heard for years. This can be difficult to understand. On the other hand, many guides use such simple examples that you can't really do anything interesting with what you learn. This guide attempts to provide meaningful examples and explain the fundamental programming concepts which cannot be easily Googled. This guide comes with a supplementary R file which contains all of the example code used in this guide. If you have any feedback please mail me at \url{sam.d.pollard@gmail.com}
@@ -38,54 +40,34 @@ A word on notation: things written in \verb|this font| represent things which ar
 
 R is what is called an \emph{open} project. That means that anyone can contribute to R. This results in a large number of what are called \emph{packages}, which consist of a bunch of R files which ``work together'' to provide a service. This also results in R being really really huge in terms of the number of features it provides.
 
-To use R, you must first download and install it. I found the easiest way to do this is to go to \url{http://cran.cs.wwu.edu/}, which is hosted by WWU. You then install it like any normal program.
+To use R, you must first download and install it. I found the easiest way to do this is to go to \url{http://cran.cs.wwu.edu/}, which is hosted by Western Washington University. You then install it like any normal program.
 
 There are two basic ways to work with R. One is in \emph{interactive} mode, the other is \emph{batch processing}. Batch processing is when R executes commands it reads from a text file. This text file is called \emph{source code} and by convention these files end with the \verb|.R| extension. This can be done in Windows by clicking \emph{File} then \emph{Source R Code\dots}. Alternatively, you can edit an R source file by clicking \emph{File} then \emph{Open Script}. Interactive mode is useful for temporary or scratch work, while batch processing useful for reproducibility.
 
+For example, you can run the file \verb|sample_code.R| provided via batch processing. This will run every command presented in this guide and save a few files in the same folder (a.k.a. directory) as the one where the source code is stored. This is far from being pedagogical because everything will finish in less than a second, but this behavior is critical for automating tasks.7
+
 When you start R the default behavior is to run in interactive mode. Below are a few sample commands in interactive mode. When R first starts in this manner it will display some text about what R is and how to exit. This has been omitted. As this guide progresses I recommend you execute each of the commands from the attached file \verb|learnR.R|. Don't worry if much of this doesn't make sense; each component will be explained.
 
-\begin{Schunk}
-\begin{Sinput}
+\begin{Verbatim}[frame=single, fontsize=\small]
 > data(trees) # Load a sample dataset
 > nrow(trees) # Count the sample size
-\end{Sinput}
-\begin{Soutput}
 [1] 31
-\end{Soutput}
-\begin{Sinput}
 > colnames(trees)
-\end{Sinput}
-\begin{Soutput}
 [1] "Girth"  "Height" "Volume"
-\end{Soutput}
-\begin{Sinput}
 > max(trees["Volume"]) # Find the largest in the column
-\end{Sinput}
-\begin{Soutput}
 [1] 77
-\end{Soutput}
-\begin{Sinput}
 > max(trees[3]) # The same as above because we access the third column
-\end{Sinput}
-\begin{Soutput}
 [1] 77
-\end{Soutput}
-\begin{Sinput}
 > apply(trees, 2, mean)
-\end{Sinput}
-\begin{Soutput}
    Girth   Height   Volume 
 13.24839 76.00000 30.17097 
-\end{Soutput}
-\end{Schunk}
+\end{Verbatim}
 
 The symbol \verb|>| is called a \emph{prompt}, which is the interpreter's (we'll define what that is later) way of saying ``I'm ready to process another command.'' Anything following a \# is a comment. This is to make the commands more human-readable, but are ignored by R entirely.
 
-The \verb|[1]| symbol is a way of saying, ``here is the first element of the output which you're not storing anywhere.''\footnote{Technically, it refers to the first element of a one-element vector. These will be explained later.} As we will see, it is common to store the output (or \emph{return value}) of a function call in a variable. This is explained in the next section, but in this example the return value of the function calls are just printed for the user to view.
+The \verb|[1]| symbol is a way of saying, ``here is the first element of the output which you're not storing anywhere.''\footnote{Technically, it refers to the first element of a one-element vector. These will be explained later.} As we will see, it is common to store the output (or \emph{return value}) of a function call in a variable. This is explained in the next section, but in this example the return value of the function calls are just printed\footnote{It is common when programming to use ``print'' for describing something displayed on the screen instead of just something physically printed.} for the user to view.
 
-It is important to keep in mind while programming R that almost everything is a function call. A \emph{function} is simply an object which takes in arguments and returns a value. For example, in math we write $f(x, y) = x^2 + y^2$ to describe a function $f$ which takes in two numbers and returns a third number. In R, we have something like \verb|nrow(trees)| which takes as input the variable \verb|trees| and returns the number of rows that variable contains. This is a general from of function calling, which follows the notation from mathematics: the function name followed by the arguments in parentheses. Functions are so important in R that after reading this guide the word ``function'' might sound weird.
-
-There are some functions which take no arguments. For example, a useful function for learning R is \verb|data()|. Calling this function in the interpreter will open up a window which lists dozens of sample data sets, \verb|trees| being the one I chose for this guide.
+It is important to keep in mind while programming R that almost everything is a function call. Functions in R are much more general and abstract than what the average person (read: non-mathematician) has learned about functions. For example, in math we write $f(x, y) = x^2 + y^2$ to describe a function $f$ which takes in two numbers and returns a third number. This is a general form of function calling which follows the notation from mathematics: the function name followed by the arguments (or inputs) in parentheses. In R, we have something like \verb|nrow(trees)| which takes as input the variable \verb|trees| and returns the number of rows that variable contains. Functions are so important in R that after reading this guide the word ``function'' might sound weird. In fact, functions are so important that they deserve their own section (Section \ref{functions}). But first, we need to understand our first example.
 
 The last command is a bit complicated but fits with intuition. The \verb|apply| function takes as an argument some \emph{data frame} (in this case \verb|trees|), a 1 or 2 (1 for rows, 2 for columns), and a function (\verb|mean| here), and applies that function to each row or column in the data set. It is generally considered good practice to use built-in functions such as \verb|apply| because they make code easier to understand and maintain.
 
@@ -97,23 +79,19 @@ One potential drawback of an interpreted language is it can be difficult to find
 
 In the first example, the object \verb|trees| is what is called a \emph{data frame}. In R, this is denoted \verb|data.frame|. This can be thought of as your typical spreadsheet format: A list of a bunch of columns. The one restriction is that each column must have equal length. Here is a quick example:
 
-\begin{Schunk}
-\begin{Sinput}
+\begin{Verbatim}[frame=single, fontsize=\small]
 > name <- c("H","He","Li")       # c can be thought of as "combine"
 > mass <- c(1.0079,4.0026,6.941) # i.e. make a vector from the arguments
 > atomic_number <- seq(1,length(name))
 > mydf <- data.frame(atomic_number, name, mass)
 > mydf                           # Print out the data.frame
-\end{Sinput}
-\begin{Soutput}
   atomic_number name   mass
 1             1    H 1.0079
 2             2   He 4.0026
 3             3   Li 6.9410
-\end{Soutput}
-\end{Schunk}
+\end{Verbatim}
 
-A few remarks are in order. The most fundamental is the effect of \verb|<-|. This performs an \emph{assignment} of the right-hand value to the left-hand value. The first assignment creates a variable called \verb|name| and puts a value inside of it. The \verb|<-| symbol is read as ``gets.'' This is the official way to perform assignment, but you will often see code such as \verb|name = c("H","He","Li")| instead, which is also assignment (this is common syntax in other programming languages). I recommend using \verb|<-| because \verb|=| is used in another context in R so this clarifies the distinction. The fourth line calls the \verb|data.frame| function which takes as input some number of vectors and returns a data frame. This return value is stored in the variable \verb|mydf|.  The name, mass, and atomic\_number form the \emph{header} (also known as column names) of the data frame.
+A few remarks are in order. The most fundamental is the effect of \verb|<-|. This performs an \emph{assignment} of the right-hand value to the left-hand value. The first assignment creates a variable called \verb|name| and puts a value inside of it. The \verb|<-| symbol is read as ``gets.'' This is the official way to perform assignment, but you will often see code such as \verb|name=c("H","He","Li")| instead, which is also assignment (this is common syntax in other programming languages). I recommend using \verb|<-| because \verb|=| is used in another context in R so this clarifies the distinction. The fourth line calls the \verb|data.frame| function which takes as input some number of vectors and returns a data frame. This return value is stored in the variable \verb|mydf|.  The name, mass, and atomic\_number form the \emph{header} (also known as column names) of the data frame.
 
 Unlike most other programming languages, the period can be used in variable names. It is typically used to denote a more specific way to go about things. For example, the function \verb|read| is used in a lot of contexts: It can be used to ask the user for input, it can read files, and many other things. A very useful ``version'' of \verb|read| is \verb|read.csv|, which takes in a csv file and turns it into a data frame.
 
@@ -128,31 +106,23 @@ The \verb|read.csv| function takes in at least 1 argument: the file name. Three 
 \section{Some Subtleties}
 \subsection{Vectors}
 The previous example used the \verb|c| function. This is used is to put data in the correct format. This is an important part of R and programming in general. The distinction here is between a \emph{vector} and a \emph{scalar}. This fits with mathematical intuition but not so much with the real world. Ask a mathematician what a vector is and she will respond, ``It is something that behaves like a vector.'' While this is sort of a joke, there really isn't any better definition. In R, vectors are all over the place. Here are some examples and a non-example (can you spot which?)
-\begin{Schunk}
-\begin{Sinput}
+\begin{Verbatim}[frame=single, fontsize=\small]
 > n <- nrow(trees)           # The number of trees
 > tag <- seq(1,n)            # A sequence from 1 to n, inclusive
 > lifespan <- 70*runif(n)    # Random values between 0 and 70, inclusive
 > volume <- trees["Volume"]  # The volume of each tree
-\end{Sinput}
-\end{Schunk}
+\end{Verbatim}
 
 The last example is \emph{not} a vector. It is a data frame. This means things that require vectors won't work on the data frame. For example,
-\begin{Schunk}
-\begin{Sinput}
+\begin{verbatim}
 > mean(volume)
-\end{Sinput}
-\begin{Soutput}
 [1] NA
-\end{Soutput}
-\end{Schunk}
+\end{verbatim}
 
 However, if we make a small modification:
-\begin{Schunk}
-\begin{Sinput}
+\begin{verbatim}
 > volumevec <- trees[["Volume"]]
-\end{Sinput}
-\end{Schunk}
+\end{verbatim}
 
 This \emph{is} a vector.
 
@@ -300,6 +270,8 @@ curve(p1*x^2 + p2, from = lb, to = ub, add = TRUE)
 
 Now, analysis of variance is an incredibly sophisticated technique which is far beyond what I am trying to discuss here. You'll notice that the nonlinear model does not provide the same depth of analysis with the call to \verb|summary| as the linear model. This is for good reason (see \cite{nlsanova}). However, in this case we can look at the plots and see that a quadratic model fits better.
 
+% TODO: This above too detail oriented and is not really relevant
+
 \subsection{Plotting}\label{plotting}
 R has very powerful plotting features. They are described as ``beautiful'' by data visualization geeks. One reason for this is that R can output in vector formats, which is to say they scale to any size. R supports many filetypes, but this guide uses the pdf format by calling the \verb|pdf| function. Two more useful filetypes supported are png and jpg, which are called identically to the pdf driver, only using the \verb|jpeg| and \verb|png| functions.
 
@@ -354,7 +326,7 @@ pdf("C:\Users\Sam Pollard\Documents\R\sample_plot.pdf")
 \end{verbatim}
 All this combined makes the graphic shown in Fig. 1 
 
-\begin{figure}[h]
+\begin{figure}[ht]
 \centering
 \includegraphics[scale=0.7]{sample_plot}
 \caption{The figure created in Section \ref{plotting}.}
@@ -365,10 +337,37 @@ All this combined makes the graphic shown in Fig. 1
 % Other functions: axes
 % Maybe add later: date in the corner, explain all the crazy code I just did.
 
-\section{Conclusion}
-I will not mention a few rather important concepts that are missing from this guide. In general, most of what makes a programming language a programming language is gone: the \verb|if| and \verb|for| statements, creating custom functions using \verb|function|, and much more. This is firstly a practical guide and even without those fundamental features a lot can be done with R.
+\section{Conclusion of Part I}
+This concludes the first part of the guide. You are missing many important aspects of programming in general. Much of what makes a programming language a programming language is missing: the \verb|if| and \verb|for| statements, creating custom functions using \verb|function|, and much more. This is firstly a practical guide and even without those fundamental features a lot can be done with R.
 
-\vfill
+\clearpage
+\part{Learn You Some R, ``In Theory''}
+\textbf{Note: This part of the guide is far from complete.}
+
+This part of the guide attempts to give some actual programming knowledge as opposed to some useful tricks. This focuses more on the semantics of a language, while Part I was focused on the syntax. In layperson's terms this can be thought of as learning how to build a fishing rod instead of learning how to fish. The benefit to the theoretical side is these concepts apply to every other programming language. The drawback is even if you know how to build a fishing rod, you can still be a terrible fisher.
+
+\section{Functions}\label{functions}
+It is difficult to give a meaningful definition of a function, but the best I can come up with is, ``a function is an object which takes as input zero or more arguments, performs some operations based on these arguments, and then returns a value or nothing.'' So, what is a function?
+
+Incredibly useful, as it turns out. Without getting into too much detail, it has been proven that \emph{everything} that computers can be made to do can be boiled down to computing functions and setting variables\footnote{If you would like to learn more, this is referred to as Lambda Calculus.}. This is motivation to understand both variables and functions.
+
+Now, let's get a more useful understanding of a function in R; the definition I provided is vague and useless. To that end, here is a simple function which does nothing useful.
+
+\begin{Verbatim}[frame=single, fontsize=\small]
+parenthesize <- function(x, y, z) {
+	sprintf("(%s, %s, %s)", x, y, z)
+}
+\end{Verbatim}
+
+Notice that this looks like variable assignment. In fact, this is exactly what is happening. Now the variable \verb|parenthesize| is a function. Next up we see the braces \verb|{}|. All these do is define what is inside the function. We most likely have functions which take up multiple lines of source code, so the braces show exactly when the function begins and ends. It is proper style to indent everything between sets of braces. This makes the code more readable because there may often be multiple levels of braces which can get incredibly confusing even with proper indentation.
+
+% A less stupid function would be to intersperse
+
+% Exercise: Create a function which takes in a full name and returns the name with the last name followed by first initial.
+% For example,
+% Sam Pollard would be returned as Pollard S.
+% How would you test that this is correct? What about strange names like Johannes van der Waals?
+\clearpage
 \section{Resources}
 Arguably the most useful resource you can make use of in R is the \verb|help| function. You pass \verb|help| any function as an argument, which will direct you to an online help source. For example, \verb|help(rbind)|. This is the same as \verb|?rbind|.
 
