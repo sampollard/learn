@@ -21,6 +21,7 @@
 \regtotcounter{page}
 \cfoot{\ifnum\totvalue{page} > 1 \thepage \else\fi}
 
+\theoremstyle{remark}
 \newtheorem{exercise}{Exercise}
 
 \begin{document}
@@ -110,10 +111,10 @@ The \verb|header = TRUE| indicates that the first line of this csv file contains
 \subsection{Vectors}
 The previous example used the \verb|c| function. This is used is to put data in the correct format. This is an important part of R and programming in general. The distinction here is between a \emph{vector} and a \emph{scalar}. This fits with mathematical intuition but not so much with the real world. Ask a mathematician what a vector is and she will respond, ``It is something that behaves like a vector.'' While this is sort of a joke, there really isn't any better definition. In R, vectors are all over the place. Here are some examples and a non-example (can you spot which?)
 \begin{Verbatim}[frame=single, fontsize=\small]
-> n <- nrow(trees)           # The number of trees
-> tag <- seq(1,n)            # A sequence from 1 to n, inclusive
-> lifespan <- 70*runif(n)    # Random values between 0 and 70, inclusive
-> volume <- trees["Volume"]  # The volume of each tree
+n <- nrow(trees)           # The number of trees
+tag <- seq(1,n)            # A sequence from 1 to n, inclusive
+lifespan <- 70*runif(n)    # Random values between 0 and 70, inclusive
+volume <- trees["Volume"]  # The volume of each tree
 \end{Verbatim}
 
 The last example is \emph{not} a vector. It is a data frame. This means things that require vectors won't work on the data frame. For example,
@@ -193,11 +194,6 @@ would accomplish the same task. If we only cared about a few rows of \verb|mydf|
 \end{verbatim}
 This takes the 4th through 9th rows of \verb|mydf|, inclusive.
 
-% \begin{exercise}
-% Write your own \verb|head| function using what you know.
-% \end{exercise}
-
-
 \subsection{Default Parameters}
 Returning to the first example of creating the tree names, we had to specify that \verb|sep = ""|, or the \emph{empty string}. If this was left out, i.e. \verb|paste("T",tag)|, then by default the strings are concatenated using a space as separator. We would get \verb|T 15| instead of \verb|T15|. Why is this? The motivation behind this is that most of the time a user will want the values separated by spaces. Without anything, there is the \emph{default parameter} for \verb|sep|, which is a space. Parameter specification takes the general form \verb|tag = value|, where \verb|tag| is specific to the function being called and \verb|value| can be anything you want, though not every value is correct in every circumstance. This appears all over the place in R programs, and here we don't have the choice to use \verb|<-|.
 
@@ -253,7 +249,16 @@ Residual standard error: 9.458 on 98 degrees of freedom
 Multiple R-squared:  0.9067,	Adjusted R-squared:  0.9057 
 F-statistic: 951.8 on 1 and 98 DF,  p-value: < 2.2e-16
 \end{Verbatim}
-This summary is a Type I analysis of variance table. From this, we get a statistically significant result. To see this in more depth, we may call \verb|plot(linearmodel)| which produces several plots of the data. This further indicates the model is biased at the endpoints, suggesting a linear model isn't ideal.
+This summary is a Type I analysis of variance table. From this, we get a statistically significant result (i.e. publishable!), however viewing the plot shows the model is lacking (Fig.~\ref{linear}).
+
+\begin{figure}[ht]
+\label{linear}
+\centering
+\includegraphics[scale=0.5]{linear_model}
+\caption{Our first shot at fitting some data.}
+\end{figure}
+
+To see this in more depth, we may call \verb|plot(linearmodel)| which produces several plots of the data. This further indicates the model is biased at the endpoints, suggesting a linear model isn't ideal. Of course, 
 
 To fit a nonlinear curve to the data we must use a different function, \verb|nls| (nonlinear least squares). Here is how that would be performed:
 \begin{Verbatim}[frame=single, fontsize=\small]
@@ -329,8 +334,9 @@ pdf("C:\Users\Sam Pollard\Documents\R\sample_plot.pdf")
 All this combined makes the graphic shown in Fig. 1 
 
 \begin{figure}[ht]
+\label{quadratic}
 \centering
-\includegraphics[scale=0.7]{sample_plot}
+\includegraphics[scale=0.6]{sample_plot}
 \caption{The figure created in Section \ref{plotting}.}
 \end{figure}
 
@@ -346,22 +352,95 @@ This concludes the first part of the guide. You are missing many important aspec
 \part{Learn You Some R, ``In Theory''}
 \textbf{Note: This part of the guide is far from complete.}
 
-This part of the guide attempts to give some actual programming knowledge as opposed to some useful tricks. This focuses more on the semantics of a language, while Part I was focused on the syntax. In layperson's terms this can be thought of as learning how to build a fishing rod instead of learning how to fish. The benefit to the theoretical side is these concepts apply to every other programming language. The drawback is even if you know how to build a fishing rod, you can still be a terrible fisher.
+This part of the guide attempts to give some general programming knowledge as opposed to some useful tricks. This can be thought of as learning how to build a fishing rod instead of learning how to fish. The benefit to the theoretical side is these concepts apply to every other programming language. The drawback is even if you know how to build a fishing rod, you can still be a terrible fisher.
 
 \section{Functions}\label{functions}
 It is difficult to give a meaningful definition of a function, but the best I can come up with is, ``a function is an object which takes as input zero or more arguments, performs some operations based on these arguments, and then returns a value or nothing.'' So, what is a function?
 
-Incredibly useful, as it turns out. Without getting into too much detail, it has been proven that \emph{everything} that computers can be made to do can be boiled down to computing functions and setting variables\footnote{If you would like to learn more, this is referred to as Lambda Calculus.}. This is motivation to understand both variables and functions.
+Incredibly useful, as it turns out. Without getting into too much detail, it has been proven that \emph{everything} computers can be made to do can be boiled down to computing functions and setting variables\footnote{If you would like to learn more, this is referred to as Lambda Calculus.}. This is motivation to understand both variables and functions.
 
-Now, let's get a more useful understanding of a function in R; the definition I provided is vague and useless. To that end, here is a simple function which does nothing useful.
+Now, let's start by creating our own function in R. Suppose we just want to take any vector as input, and enclose that in parentheses.
 
 \begin{Verbatim}[frame=single, fontsize=\small]
-parenthesize <- function(x, y, z) {
-	sprintf("(%s, %s, %s)", x, y, z)
+parenthesize <- function(x) {
+	interior <- paste(x, collapse = " ")
+	return(paste("(", interior, ")"))	
+}
+\end{Verbatim}
+Notice that this looks like variable assignment. In fact, this is exactly what is happening. Next up we see the braces \verb|{}|. All these do is define what is inside the function. We most likely have functions which take up multiple lines of source code, so the braces show exactly when the function begins and ends. It is proper style to indent everything between sets of braces. This makes the code more readable because there may often be multiple levels of braces which can get incredibly confusing even with proper indentation.
+
+Now the function \verb|parenthesize| is \emph{bound} to the variable \verb|parenthesize| and we can use it like we would use any other built in function:
+\begin{verbatim}
+> parenthesize(c(1,2,3,4))
+[1] "( 1 2 3 4 )"
+\end{verbatim}
+
+The variable \verb|interior| in this context has what's called a \emph{scope}. This is an important concept in programming and refers to when you can access particular variables. For example, once we define the function, if we try to access \verb|interior| outside of the braces defining the function we get an error:
+\begin{verbatim}
+> interior
+Error: object 'interior' not found
+\end{verbatim}
+This is because \verb|interior| is local to the function \verb|parenthesize|. This helps keep the set of all active variables less cluttered, and makes things easier because you can reuse variable names such as \verb|x|. On the topic of \verb|x|, by making it an argument to \verb|parenthesize|, we are making the variable \verb|x| only in scope between the braces following the key word \verb|function|. That is, whatever the value of \verb|x| gets inside of the function is forgotten when the function returns. This is useful because we can now pass anything into \verb|parenthesize| and it will always be known as \verb|x| inside of the function. Even if we had a variable called \verb|x| that we were using \emph{outside} of the function definition, this would be temporarily \emph{shadowed}, or eclipsed by the \verb|x| specified as \verb|parenthesize|'s input argument.
+
+% TODO: Have example of this later? Add a section called scope?
+% This means we don't have to worry about anything else which may happen to be named \verb|x|. Once we leave the safety of the \verb|}|, we can again refer to the old \verb|x| which
+
+A large part of programming is formatting data correctly. We have seen that \verb|read.csv| attempts to make this easier with its \verb|sep| argument. This allows us to deal with an arbitrary separator for a csv file. However, many other applications are not as forgiving. For example, a URL must be in a very specific format to get to the correct page. As a motivating example, suppose we have the following protein IDs (as recognized by the RCSB Protein Data Bank) and wish to convert these into a comma-separated list:
+
+\begin{Verbatim}[frame=single, fontsize=\small]
+> # The input
+> proteins <- c("3G73","3CO6","1VDE","1AF5","1EVX","2OST","1QQC","1KN9","3BF0")
+> # The desired output
+> protein_string <- "3G73,3CO6,1VDE,1AF5,1EVX,2OST,1QQC,1KN9,3BF0"
+\end{Verbatim}
+
+The reader may notice that the variable \verb|proteins| is basically already a comma-separated list. Suspend your disbelief and suppose that we don't already know \verb|proteins|, or that you don't want to remove all of those quotes around each protein ID. Our goal then is to have some function \verb|intersperse| which takes as input a vector and outputs that vector with commas in between the entries. So instead of typing the value of \verb|protein_string| out by hand like I did when writing this guide, we could get the same result with a function.
+
+% TODO: Write it the bad way
+
+\begin{Verbatim}[frame=single, fontsize=\small]
+intersperse <- function(vec, ele) {
+	y <- vector("character", length = 2*length(vec) - 1)
+	# What if the length of vec is less than 2?
+	y[seq(2, length(y), 2)] <- ele
+	y[seq(1, length(y), 2)] <- vec
+	return(paste0(y, collapse = ""))
 }
 \end{Verbatim}
 
-Notice that this looks like variable assignment. In fact, this is exactly what is happening. Now the variable \verb|parenthesize| is a function. Next up we see the braces \verb|{}|. All these do is define what is inside the function. We most likely have functions which take up multiple lines of source code, so the braces show exactly when the function begins and ends. It is proper style to indent everything between sets of braces. This makes the code more readable because there may often be multiple levels of braces which can get incredibly confusing even with proper indentation.
+Full disclosure: There is a much simpler way to do this. We have seen the \verb|paste| function before, and the \verb|collapse| argument. Now, what if we just let R handle the hard work for us?
+
+\begin{Verbatim}[frame=single, fontsize=\small]
+intersperse <- function(vec, ele) {
+	return(paste(vec, collapse = ele))
+}
+\end{Verbatim}
+
+Now, using \verb|intersperse| we get
+\begin{verbatim}
+> protein_string_with_intersperse == intersperse(proteins, ",")
+> protein_string_with_intersperse == protein_string
+[1] TRUE
+\end{verbatim}
+What I just showed you was the first test case.
+
+\newpage
+\part{Exercises}
+
+Just as you cannot learn how to play piano by watching someone else play, you cannot learn to program by watching (or reading about) someone else program.
+
+\begin{enumerate}
+	\item { Write your own \verb|head| function. Call this function \verb|Head|. Notice that this is considered an entirely different function in R. This is because R is case sensitive. Likewise, the variable \verb|X| is different from \verb|x|. Recall that \verb|head| takes as input some object and outputs the first few rows (or elements) of that object. Test your function on the following inputs:
+	\begin{verbatim}
+		Head(seq(1000))
+		data(Puromycin) # Load in a sample data.frame
+		Head(Puromycin)
+		Head(5)
+	\end{verbatim}
+	Make sure this matches the ouput of calling \verb|head| with the same inputs.
+	}
+
+\end{enumerate}
 
 % A less stupid function would be to intersperse
 

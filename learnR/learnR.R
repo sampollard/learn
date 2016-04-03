@@ -102,7 +102,15 @@ dev.off()
 
 ### Part II
 # 6. Functions
-parenthesize <- function(x, y, z) {
-	sprintf("(%s, %s, %s)", x, y, z)
+parenthesize <- function(x) {
+	interior <- paste(x, collapse = " ")
+	return(paste("(", interior, ")"))	
 }
 
+intersperse <- function(vec, ele) {
+	y <- vector("character", length = 2*length(vec) - 1)
+	# What if the length of vec is less than 2?
+	y[seq(2, length(y), 2)] <- ele
+	y[seq(1, length(y), 2)] <- vec
+	return(paste0(y, collapse = ""))
+}
