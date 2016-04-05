@@ -1,8 +1,8 @@
 # Here is some sample R code. This is mostly supplemental to the pdf.
-# Feel free (and in fact I recommment) editing this, running it in your
+# Feel free (and in fact I recommend) editing this, running it in your
 # own R environment, and seeing what you can do.
 # Author: Sam Pollard (sam.d.pollard@gmail.com)
-# Last Modified: 12 April 2015
+# Last Modified: 4 April 2016
 # Note: This file can be run as is, but won't do very much if not run
 # in interpreted mode. If you want to run the whole thing at once but
 # still see output, you can sprinkle some calls to print throughout.

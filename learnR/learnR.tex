@@ -6,13 +6,16 @@
 \usepackage[margin=1in, headheight=15pt]{geometry}
 \usepackage{amsmath, amssymb, amsthm}
 \frenchspacing % Single spacing after all periods.
+\usepackage{graphicx, hyperref, fancyvrb}
+
+\usepackage{inconsolata}
+\usepackage[T1]{fontenc}
 
 % Remove the headrule and make enough space for the header
 \usepackage{fancyhdr}
 \renewcommand{\headrulewidth}{0pt}
 \setlength{\headheight}{15pt} % If two lines in the header, make 30pt
 
-\usepackage{graphicx, hyperref, fancyvrb}
 
 \pagestyle{fancy}
 \lhead{Learn you some R}
@@ -24,6 +27,8 @@
 \theoremstyle{remark}
 \newtheorem{exercise}{Exercise}
 
+\newcommand{\vocab}[1]{\textbf{\emph{#1}}}
+
 \begin{document}
 \part{Learn You Some R, Practically}
 \begin{center}
@@ -31,25 +36,27 @@
 	Sam Pollard
 	\end{Large}
 	\\
+	\url{github.com/sampollard/learn/learnR}
+	\\
 	\today
 \end{center}
 \section{Introduction}
 
 This guide is meant for people with little or no programming experience. That being said, this guide moves quickly and is aimed towards people with technical training in some scientific field. There are many guides for programming which are aimed at computer scientists and use lots of jargon computer scientists have heard for years. This can be difficult to understand. On the other hand, many guides use such simple examples that you can't really do anything interesting with what you learn. This guide attempts to provide meaningful examples and explain the fundamental programming concepts which cannot be easily Googled. This guide comes with a supplementary R file which contains all of the example code used in this guide. If you have any feedback please mail me at \url{sam.d.pollard@gmail.com}
 
-A word on notation: things written in \verb|this font| represent things which are typed exactly into R or the output of running commands. Things in \emph{this font} are either vocabulary used by R, mathematical notation, or emphasis added by me. It should be clear from the context.
+A word on notation: things written in \verb|this font| represent things which are typed exactly into R or the output of running commands. Things in \vocab{this font} are vocabulary terms, and things in \emph{this font} are mathematical notation or emphases added by me. It should be clear from the context.
 
-R is what is called an \emph{open} project. That means that anyone can contribute to R. This results in a large number of what are called \emph{packages}, which consist of a bunch of R files which ``work together'' to provide a service. This also results in R being really really huge in terms of the number of features it provides.
+R is what is called an \vocab{open} project. That means that anyone can contribute to R. This results in a large number of what are called \vocab{packages}, which consist of a bunch of R files which ``work together'' to provide a service. This also results in R being really really huge in terms of the number of features it provides.
 
 To use R, you must first download and install it. I found the easiest way to do this is to go to \url{http://cran.cs.wwu.edu/}, which is hosted by Western Washington University. You then install it like any normal program.
 
-There are two basic ways to work with R. One is in \emph{interactive} mode, the other is \emph{batch processing}. Batch processing is when R executes commands it reads from a text file. This text file is called \emph{source code} and by convention these files end with the \verb|.R| extension. This can be done in Windows by clicking \emph{File} then \emph{Source R Code\dots}. Alternatively, you can edit an R source file by clicking \emph{File} then \emph{Open Script}. Interactive mode is useful for temporary or scratch work, while batch processing is useful for reproducibility.
+There are two basic ways to work with R. One is in \vocab{interactive} mode, the other is \vocab{batch processing}. Batch processing is when R executes commands it reads from a text file. This text file is called \vocab{source code} and by convention these files end with the \verb|.R| extension. This can be done in Windows by clicking \emph{File} then \emph{Source R Code\dots}. Alternatively, you can edit an R source file by clicking \emph{File} then \emph{Open Script}. Interactive mode is useful for temporary or scratch work, while batch processing is useful for reproducibility.
 
 For example, you can run the file \verb|sample_code.R| provided via batch processing. This will run every command presented in this guide and save a few files in the same folder (a.k.a. directory) as the one where the source code is stored. This is far from being pedagogical because everything will finish in less than a second, but this behavior is critical for automating tasks.
 
 When you start R the default behavior is to run in interactive mode. Below are a few sample commands in interactive mode. When R first starts in this manner it will display some text about what R is and how to exit. This has been omitted. As this guide progresses I recommend you execute each of the commands from the attached file \verb|learnR.R|. Don't worry if much of this doesn't make sense; each component will be explained.
 
-\begin{Verbatim}[frame=single, fontsize=\small]
+\begin{Verbatim}[frame=single, fontsize=\small, numbers=left ]
 > data(trees) # Load a sample dataset
 > nrow(trees) # Count the sample size
 [1] 31
@@ -64,23 +71,34 @@ When you start R the default behavior is to run in interactive mode. Below are a
 13.24839 76.00000 30.17097 
 \end{Verbatim}
 
-The symbol \verb|>| is called a \emph{prompt}, which is the interpreter's (we'll define what that is later) way of saying, ``I'm ready to process another command.'' Anything following a \# is a comment. This is to make the commands more human-readable, but are ignored by R entirely.
+The symbol \verb|>| is called a \vocab{prompt}, which is the interpreter's (we'll define what that is later) way of saying, ``I'm ready to process another command.'' Anything following a \verb|#| is a \vocab{comment}. This is to make the commands more human-readable, but are ignored by R entirely.
 
-The \verb|[1]| symbol is a way of saying, ``here is the first element of the output which you're not storing anywhere.''\footnote{Technically, it refers to the first element of a one-element vector. These will be explained later.} As we will see, it is common to store the output (or \emph{return value}) of a function call in a variable. This is explained in the next section, but in this example the return value of the function calls are just printed\footnote{It is common when programming to use ``print'' for describing something displayed on the screen instead of just something physically printed.} for the user to view.
+Line 1 loads in a sample dataset named \verb|trees| with which we can experiment. To see all the available sample datasets, type \verb|data()|.
 
-It is important to keep in mind while programming R that almost everything is a function call. Functions in R are much more general and abstract than what the average person (read: non-mathematician) has learned about functions. In math we write $f(x, y) = x^2 + y^2$ to describe a function $f$ which takes in two numbers and returns a third number. Functions in R don't need to just take as input numbers. For example, \verb|trees| is not a number but rather a table of numbers. Functions are so important in R that after reading this guide the word ``function'' might sound weird. In fact, functions are so important that they deserve their own section (Section \ref{functions}). But first, we need to understand our first example.
+The \verb|[1]| symbol on Line 3 is a way of saying, ``here is the first element of the output which you're not storing anywhere.''\footnote{Technically, it refers to the first element of a one-element vector. These will be explained later.} As we will see, it is common to store the output (or \vocab{return value}) of a function call in a variable. This is explained in the next section, but in this example the return value of the function calls are just printed\footnote{It is common when programming to use ``print'' for describing something displayed on the screen instead of just something physically printed.} for the user to view.
 
-Typing a function in R is the same as in math: the function name followed by the arguments (or inputs) in parentheses. For example, we have something like \verb|nrow(trees)| which takes as input the variable \verb|trees| and returns the number of rows that variable contains.
+Next up, we have something like \verb|nrow(trees)| which takes as input the variable \verb|trees| and returns the number of rows that variable contains. Typing a function in R is the same as in math: the function name followed by the arguments (or inputs) in parentheses. 
 
-The last command is a bit complicated but fits with intuition. The \verb|apply| function takes as an argument some \emph{data frame} (in this case \verb|trees|), a 1 or 2 (1 for rows, 2 for columns), and a function (\verb|mean| here), and applies that function to each row or column in the data set. It is generally considered good practice to use built-in functions such as \verb|apply| because they make code easier to understand and maintain.
+The last command is a bit complicated but fits with intuition. The \verb|apply| function takes as an argument some \vocab{data frame} (in this case \verb|trees|), a 1 or 2 (1 for rows, 2 for columns), and a function (\verb|mean| here), and applies that function to each row or column in the data set. It is generally considered good practice to use built-in functions such as \verb|apply| because they make code easier to understand and maintain.
+
+It is important to keep in mind while programming R that almost everything is a function call. Functions in R are much more general and abstract than what the average person (read: non-mathematician) has learned about functions. In math we write $f(x, y) = x^2 + y^2$ to describe a function $f$ which takes in two numbers and returns a third number. Functions in R don't need to just take as input numbers. For example, \verb|trees| is not a number but rather a table of numbers. Functions are so important in R that after reading this guide the word ``function'' might sound weird. In fact, functions are so important that they deserve their own section (Section \ref{functions}).
+
+You may also see a \verb|+| as a prompt which means essentially, ``you're not done yet.'' For example, if you were to type \verb|5 *| and then press enter, you will see (comments added by me)
+\begin{verbatim}
+> 5 *         # 5 times what?
++ 5           # The * is multiplication in R.
+[1] 25
+>
+\end{verbatim}
+This can also occur because of unclosed parentheses or braces. If you are not sure why this is occurring, you can type the Ctrl and C keys simultaneously in Linux to cancel whatever it is you were typing and get back to \verb|>|. This may also be denoted as Ctrl+C or even \verb|^C|. The Escape key accomplishes this task in Windows.
 
 \section{Basic Syntax and Examples}
 
-R is what is called an \emph{interpreted} language. This means that there is an aptly-named \emph{interpreter} which keeps track of all the variables you have and how to execute the commands you type. The benefit to being interpreted is you have the flexibility of running one line at a time and thus can easily run in interactive mode.
+R is what is called an \vocab{interpreted} language. This means that there is an aptly-named \vocab{interpreter} which keeps track of all the variables you have and how to execute the commands you type. The benefit to being interpreted is you have the flexibility of running one line at a time and thus can easily run in interactive mode.
 
 One potential drawback of an interpreted language is it can be difficult to find the errors in your code, because they may not be detected until the source code is run. This can be mitigated by testing small chunks of your code as you write it.
 
-In the first example, the object \verb|trees| is what is called a \emph{data frame}. In R, this is denoted \verb|data.frame|. This can be thought of as your typical spreadsheet format: A list of a bunch of columns. The one restriction is that each column must have equal length. Here is a quick example:
+In the first example, the object \verb|trees| is what is called a \vocab{data frame}. In R, this is denoted \verb|data.frame|. This can be thought of as your typical spreadsheet format: A list of a bunch of columns. The one restriction is that each column must have equal length. Here is a quick example:
 
 \begin{Verbatim}[frame=single, fontsize=\small,  numbers=left]
 > name <- c("H","He","Li")       # c can be thought of as "combine"
@@ -94,7 +112,9 @@ In the first example, the object \verb|trees| is what is called a \emph{data fra
 3             3   Li 6.9410
 \end{Verbatim}
 
-A few remarks are in order. The most fundamental is the effect of \verb|<-|. This performs an \emph{assignment} of the right-hand value to the left-hand value. The assignment on line 1 creates a variable called \verb|name| and puts a value inside of it. The \verb|<-| symbol is read as ``gets.'' This is the official way to perform assignment, but you will often see code such as \verb|name=c("H","He","Li")| instead, which is also assignment (this is common syntax in other programming languages). I recommend using \verb|<-| because \verb|=| is used in another context in R so this clarifies the distinction. The fourth line calls the \verb|data.frame| function which takes as input some number of vectors and returns a data frame. This return value is stored in the variable \verb|mydf|.  The name, mass, and atomic\_number form the \emph{header} (also known as column names) of the data frame.
+A few remarks are in order. The most fundamental is the effect of \verb|<-|. This performs an \vocab{assignment} of the right-hand value to the left-hand value. The assignment on line 1 creates a variable called \verb|name| and puts a value inside of it. The \verb|<-| symbol is read as ``gets.'' This is the official way to perform assignment, but you will often see code such as \verb|name=c("H","He","Li")| instead, which is also assignment (this is common syntax in other programming languages). I recommend using \verb|<-| because \verb|=| is used in another context in R so this clarifies the distinction. The fourth line calls the \verb|data.frame| function which takes as input some number of vectors and returns a data frame. This return value is stored in the variable \verb|mydf|.  The name, mass, and atomic\_number form the \vocab{header} (also known as column names) of the data frame.
+
+In Line 3, we generate a \emph{sequence} using the \verb|seq| function. The first argument is the starting value, and the second is the ending value.
 
 Unlike most other programming languages, the period can be used in variable names. It is typically used to denote a more specific way to go about things. For example, the function \verb|read| is used in a lot of contexts: It can be used to ask the user for input, it can read files, and many other things. A very useful ``version'' of \verb|read| is \verb|read.csv|, which takes in a csv file and turns it into a data frame.
 
@@ -105,11 +125,11 @@ Consider the following example, which reads a csv and allows us to use all of R'
 \end{verbatim}
 
 The \verb|read.csv| function takes in at least 1 argument: the file name. Three are given above to give more specification about how we want to read the csv file. To prevent R from interpreting \verb|report.csv| as a variable, the value is closed in quotes\footnote{A bunch of letters enclosed within quotes is called a \emph{string}. Here are some examples of strings: \texttt{"Hello"}, \texttt{"121a.a;lk!"}.}.
-The \verb|header = TRUE| indicates that the first line of this csv file contains the names of each column. If this is set to \verb|FALSE|, R sets the column names to \verb|V1|, \verb|V2|, and so on. The last argument is the \emph{separator}. This may be whatever you want. Cryptically, a csv (comma separated value) file may not be separated by commas. Oftentimes, it is tab-separated. To accommodate this, one can say \verb|sep = "\t"|. The backslash here \emph{escapes} the succeeding character \verb|t| and instead interprets this as a tab.
+The \verb|header = TRUE| indicates that the first line of this csv file contains the names of each column. If this is set to \verb|FALSE|, R sets the column names to \verb|V1|, \verb|V2|, and so on. The last argument is short for \emph{separator}. This may be whatever you want. Cryptically, a csv (comma separated value) file may not be separated by commas. Oftentimes, it is tab-separated. To accommodate this, one can say \verb|sep = "\t"|. The backslash here \vocab{escapes} the succeeding character \verb|t| and instead interprets this as a tab.
 
 \section{Some Subtleties}
 \subsection{Vectors}
-The previous example used the \verb|c| function. This is used is to put data in the correct format. This is an important part of R and programming in general. The distinction here is between a \emph{vector} and a \emph{scalar}. This fits with mathematical intuition but not so much with the real world. Ask a mathematician what a vector is and she will respond, ``It is something that behaves like a vector.'' While this is sort of a joke, there really isn't any better definition. In R, vectors are all over the place. Here are some examples and a non-example (can you spot which?)
+The previous example used the \verb|c| function. This is one way to gather data in the correct format. This is an important part of R and programming in general. The distinction here is between a \vocab{vector} and a \vocab{scalar}. This fits with mathematical intuition but not so much with the real world. Ask a mathematician what a vector is and she will respond, ``It is something that behaves like a vector.'' While this is sort of a joke, there really isn't any better definition. In R, vectors are all over the place. Here are some examples and a non-example (can you spot which?)
 \begin{Verbatim}[frame=single, fontsize=\small]
 n <- nrow(trees)           # The number of trees
 tag <- seq(1,n)            # A sequence from 1 to n, inclusive
@@ -166,7 +186,7 @@ By the way, \verb|head| is a nice way to just see the beginning of a data frame 
 \begin{verbatim}
 > rownames(mydf) <- treenames
 \end{verbatim}
-We can also retrieve the row or column names by putting this function call on the right-hand side of an assignment like so: \verb|names <- rownames(mydf)|. To anyone with programming experience, this is a bit strange. The function can be used both as an \emph{l}-value, a.k.a. the left-hand side of an assignment statement a.k.a. the location of the variable getting changed, and an \emph{r}-value, a.k.a. the right-hand side of an assignment statement a.k.a. the return value of a function call. This is where the \verb|<-| notation keeps us sane: it directs us where the data we computed is being stored.
+We can also retrieve the row or column names by putting this function call on the right-hand side of an assignment like so: \verb|names <- rownames(mydf)|. To anyone with programming experience, this is a bit strange. The function can be used both as an \vocab{\emph{l}-value}, a.k.a. the left-hand side of an assignment statement a.k.a. the location of the variable getting changed, and an \vocab{\emph{r}-value}, a.k.a. the right-hand side of an assignment statement a.k.a. the return value of a function call. This is where the \verb|<-| notation keeps us sane: it directs us where the data we computed is being stored.
 
 However, this data frame still looks a bit off:
 \begin{Verbatim}[frame=single, fontsize=\small]
@@ -194,8 +214,8 @@ would accomplish the same task. If we only cared about a few rows of \verb|mydf|
 \end{verbatim}
 This takes the 4th through 9th rows of \verb|mydf|, inclusive.
 
-\subsection{Default Parameters}
-Returning to the first example of creating the tree names, we had to specify that \verb|sep = ""|, or the \emph{empty string}. If this was left out, i.e. \verb|paste("T",tag)|, then by default the strings are concatenated using a space as separator. We would get \verb|T 15| instead of \verb|T15|. Why is this? The motivation behind this is that most of the time a user will want the values separated by spaces. Without anything, there is the \emph{default parameter} for \verb|sep|, which is a space. Parameter specification takes the general form \verb|tag = value|, where \verb|tag| is specific to the function being called and \verb|value| can be anything you want, though not every value is correct in every circumstance. This appears all over the place in R programs, and here we don't have the choice to use \verb|<-|.
+\subsection{Optional Arguments}
+Returning to the first example of creating the tree names, we had to specify that \verb|sep = ""|, or the \vocab{empty string}, or the string with no characters. If this was left out, i.e. \verb|paste("T",tag)|, then by default the strings are concatenated using a space as separator. We would get \verb|T 15| instead of \verb|T15|. Why is this? The motivation behind this is that most of the time a user will want the values separated by spaces. Without anything, there is the \vocab{default argument} for \verb|sep|, which is a single space \verb|" "|. Parameter specification takes the general form \verb|tag = value|, where \verb|tag| is specific to the function being called and \verb|value| can be anything you want, though not every value is correct in every circumstance. This appears all over the place in R programs, and here we don't have the choice to use \verb|<-|.
 
 \section{Regression and Plotting}
 
@@ -251,7 +271,7 @@ F-statistic: 951.8 on 1 and 98 DF,  p-value: < 2.2e-16
 \end{Verbatim}
 This summary is a Type I analysis of variance table. From this, we get a statistically significant result (i.e. publishable!), however viewing the plot shows the model is lacking (Fig.~\ref{linear}).
 
-\begin{figure}[ht]
+\begin{figure}
 \label{linear}
 \centering
 \includegraphics[scale=0.5]{linear_model}
@@ -323,11 +343,11 @@ Line 8 creates ``marginal text'' and the parameters are a bit cryptic. The \verb
 
 Lines 11 and 12 overlay curves on the scatterplot. The first argument is a general form for a function: notice that \verb|x| is not a variable which has a value associated with it. This allows functions to be plot. The \verb|lwd| parameter stands for ``line width'' and is again a multiple of the default value 1.
 
-Next, the legend is created. This is done in several steps so the R command doesn't get too messy. The \verb|quadtext| and \verb|linetext| store the string which represents the equation. There are many ways to do this, and R does support mathematical equations. However, I used the \verb|paste0| function. Recall that \verb|paste| allows concatenation of strings. However, in the previous usage, we created a vector. Next, \verb|paste0| is simply a convenience and is identical to \verb|paste(..., sep="", collapse=TRUE)|. That is, this function combines everything you give it into a single string. The \verb|round| function is as one would expect: rounding a value to 2 decimal places. The second argument to \verb|format| gives the minimum number of digits to the right of the decimal place.
+Next, the legend is created. This is done in several steps so the R command doesn't get too messy. The \verb|quadtext| and \verb|linetext| store the string which represents the equation. There are many ways to do this, and R does support mathematical equations. However, I used the \verb|paste0| function. Recall that \verb|paste| allows concatenation of strings. However, in the previous usage, we created a vector. Next, \verb|paste0| is simply a convenience and is identical to \verb|paste(..., sep="")|. That is, this function combines everything you give it into a single string. The \verb|round| function is as one would expect: rounding a value to 2 decimal places. The second argument to \verb|format| gives the minimum number of digits to the right of the decimal place.
 
 To create the legend, one must first specify the location. I chose the top left corner, but there are also options such as \verb|top|, \verb|bottomright|, or by the x and y coordinates. Notice that all the parameters afterwards are vectors created using the ubiquitous \verb|c| function. Thus, the first element of each parameter will correspond to the first line and text to be displayed with that line.
 
-Lastly, once you're satisfied with the graph the function \verb|dev.off()| turns off the device which is displaying the plot which causes the file to be written to the location specified by \verb|pdf|. Running this script will cause a file called \verb|sample_plot.pdf| to be saved in the \emph{working directory} that R is running in. To specify exactly where the plot should be saved it is best to use an absolute file location. For example:
+Lastly, once you're satisfied with the graph the function \verb|dev.off()| turns off the device which is displaying the plot which causes the file to be written to the location specified by \verb|pdf|. Running this script will cause a file called \verb|sample_plot.pdf| to be saved in the \vocab{working directory} that R is running in. To specify exactly where the plot should be saved it is best to use an absolute file location. For example:
 \begin{verbatim}
 pdf("C:\Users\Sam Pollard\Documents\R\sample_plot.pdf")
 \end{verbatim}
@@ -369,32 +389,50 @@ parenthesize <- function(x) {
 \end{Verbatim}
 Notice that this looks like variable assignment. In fact, this is exactly what is happening. Next up we see the braces \verb|{}|. All these do is define what is inside the function. We most likely have functions which take up multiple lines of source code, so the braces show exactly when the function begins and ends. It is proper style to indent everything between sets of braces. This makes the code more readable because there may often be multiple levels of braces which can get incredibly confusing even with proper indentation.
 
-Now the function \verb|parenthesize| is \emph{bound} to the variable \verb|parenthesize| and we can use it like we would use any other built in function:
+Now the function \verb|parenthesize| is \vocab{bound} to the variable \verb|parenthesize| and we can use it like we would use any other built in function:
 \begin{verbatim}
 > parenthesize(c(1,2,3,4))
 [1] "( 1 2 3 4 )"
 \end{verbatim}
 
-The variable \verb|interior| in this context has what's called a \emph{scope}. This is an important concept in programming and refers to when you can access particular variables. For example, once we define the function, if we try to access \verb|interior| outside of the braces defining the function we get an error:
+The variable \verb|interior| in this context has what's called a \vocab{scope}. This is an important concept in programming and refers to when you can access particular variables. For example, once we define the function, if we try to access \verb|interior| outside of the braces defining the function we get an error:
 \begin{verbatim}
 > interior
 Error: object 'interior' not found
 \end{verbatim}
-This is because \verb|interior| is local to the function \verb|parenthesize|. This helps keep the set of all active variables less cluttered, and makes things easier because you can reuse variable names such as \verb|x|. On the topic of \verb|x|, by making it an argument to \verb|parenthesize|, we are making the variable \verb|x| only in scope between the braces following the key word \verb|function|. That is, whatever the value of \verb|x| gets inside of the function is forgotten when the function returns. This is useful because we can now pass anything into \verb|parenthesize| and it will always be known as \verb|x| inside of the function. Even if we had a variable called \verb|x| that we were using \emph{outside} of the function definition, this would be temporarily \emph{shadowed}, or eclipsed by the \verb|x| specified as \verb|parenthesize|'s input argument.
+This is because \verb|interior| is local to the function \verb|parenthesize|. This helps keep the set of all active variables less cluttered, and makes things easier because you can reuse variable names such as \verb|x|. On the topic of \verb|x|, by making it an argument to \verb|parenthesize|, we are making the variable \verb|x| only in scope between the braces following the key word \verb|function|. That is, whatever the value of \verb|x| gets inside of the function is forgotten when the function returns. This is useful because we can now pass anything into \verb|parenthesize| and it will always be known as \verb|x| inside of the function. Even if we had a variable called \verb|x| that we were using \emph{outside} of the function definition, this would be temporarily \vocab{shadowed}, or eclipsed by the \verb|x| specified as \verb|parenthesize|'s input argument.
 
 % TODO: Have example of this later? Add a section called scope?
 % This means we don't have to worry about anything else which may happen to be named \verb|x|. Once we leave the safety of the \verb|}|, we can again refer to the old \verb|x| which
 
-A large part of programming is formatting data correctly. We have seen that \verb|read.csv| attempts to make this easier with its \verb|sep| argument. This allows us to deal with an arbitrary separator for a csv file. However, many other applications are not as forgiving. For example, a URL must be in a very specific format to get to the correct page. As a motivating example, suppose we have the following protein IDs (as recognized by the RCSB Protein Data Bank) and wish to convert these into a comma-separated list:
+\subsection{A (Seemingly) More Complex Function}
+Again, we address the problem of correctly formatting data. We have seen that \verb|read.csv| attempts to make this easier with its \verb|sep| argument. This allows us to deal with an arbitrary separator for a csv file. However, many other applications are not as forgiving. For example, a URL must be in a very specific format to get to the correct page. As a motivating example, suppose we have the following protein IDs (as recognized by the RCSB Protein Data Bank) and wish to convert these into a comma-separated list:
 
-\begin{Verbatim}[frame=single, fontsize=\small]
+\begin{Verbatim}[frame=single, fontsize=\small, numbers=left]
 > # The input
 > proteins <- c("3G73","3CO6","1VDE","1AF5","1EVX","2OST","1QQC","1KN9","3BF0")
 > # The desired output
 > protein_string <- "3G73,3CO6,1VDE,1AF5,1EVX,2OST,1QQC,1KN9,3BF0"
 \end{Verbatim}
 
-The reader may notice that the variable \verb|proteins| is basically already a comma-separated list. Suspend your disbelief and suppose that we don't already know \verb|proteins|, or that you don't want to remove all of those quotes around each protein ID. Our goal then is to have some function \verb|intersperse| which takes as input a vector and outputs that vector with commas in between the entries. So instead of typing the value of \verb|protein_string| out by hand like I did when writing this guide, we could get the same result with a function.
+The reader may notice that second line above is basically already a comma-separated list. Suspend your disbelief and suppose that we don't already know \verb|proteins|, or that you don't want to remove all of those quotes around each protein ID. Our goal then is to have some function \verb|intersperse| which takes as input a vector and outputs that vector with commas in between the entries. So instead of typing the value of \verb|protein_string| out by hand like I did when writing this guide, we could get the same result with a function.
+
+Full disclosure: there is a much simpler way to do this using functions we have already seen before. These will be shown later in this section. However, for the sake of generalization I will explain this in terms of two fundamental programming language constructs: the \verb|for| loop and the \verb|if| statement.
+
+\begin{Verbatim}[frame=single, fontsize=\small]
+intersperse <- function(vec, ele) {
+	y <- vector("character", length = 2*length(vec) - 1)
+	y[1] <- vec[1]
+	vlen <- length(vec)
+	if (vlen > 1) {
+		for (i in seq(2,vlen) {
+			y[2*i] <- vec[i]
+			y[2*i + 1] <- ele
+		}
+	}
+	return(y)
+}
+\end{Verbatim}
 
 % TODO: Write it the bad way
 
@@ -408,7 +446,7 @@ intersperse <- function(vec, ele) {
 }
 \end{Verbatim}
 
-Full disclosure: There is a much simpler way to do this. We have seen the \verb|paste| function before, and the \verb|collapse| argument. Now, what if we just let R handle the hard work for us?
+We have seen the \verb|paste| function before, and the \verb|collapse| argument. Now, what if we just let R handle the hard work for us?
 
 \begin{Verbatim}[frame=single, fontsize=\small]
 intersperse <- function(vec, ele) {
@@ -416,13 +454,13 @@ intersperse <- function(vec, ele) {
 }
 \end{Verbatim}
 
-Now, using \verb|intersperse| we get
+Using \verb|intersperse| we get
 \begin{verbatim}
 > protein_string_with_intersperse == intersperse(proteins, ",")
 > protein_string_with_intersperse == protein_string
 [1] TRUE
 \end{verbatim}
-What I just showed you was the first test case.
+What I just showed you was the first test case of this guide.
 
 \newpage
 \part{Exercises}
