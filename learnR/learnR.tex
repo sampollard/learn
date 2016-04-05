@@ -8,6 +8,7 @@
 \frenchspacing % Single spacing after all periods.
 \usepackage{graphicx, hyperref, fancyvrb}
 
+% Change the verbatim font
 \usepackage{inconsolata}
 \usepackage[T1]{fontenc}
 
@@ -101,8 +102,8 @@ One potential drawback of an interpreted language is it can be difficult to find
 In the first example, the object \verb|trees| is what is called a \vocab{data frame}. In R, this is denoted \verb|data.frame|. This can be thought of as your typical spreadsheet format: A list of a bunch of columns. The one restriction is that each column must have equal length. Here is a quick example:
 
 \begin{Verbatim}[frame=single, fontsize=\small,  numbers=left]
-> name <- c("H","He","Li")       # c can be thought of as "combine"
-> mass <- c(1.0079,4.0026,6.941) # i.e. make a vector from the arguments
+> name <- c("H","He","Li")        # c can be thought of as "combine"
+> mass <- c(1.0079,4.0026,6.941)  # i.e. make a vector from the arguments
 > atomic_number <- seq(1,length(name))
 > mydf <- data.frame(atomic_number, name, mass)
 > mydf                           # Print out the data.frame
@@ -116,16 +117,52 @@ A few remarks are in order. The most fundamental is the effect of \verb|<-|. Thi
 
 In Line 3, we generate a \emph{sequence} using the \verb|seq| function. The first argument is the starting value, and the second is the ending value.
 
-Unlike most other programming languages, the period can be used in variable names. It is typically used to denote a more specific way to go about things. For example, the function \verb|read| is used in a lot of contexts: It can be used to ask the user for input, it can read files, and many other things. A very useful ``version'' of \verb|read| is \verb|read.csv|, which takes in a csv file and turns it into a data frame.
-
-Consider the following example, which reads a csv and allows us to use all of R's features to analyze the data contained within:
+Unlike most other programming languages, the period can be used in variable names. It is typically used to denote a more specific way to go about things. For example, the function \verb|write| is generally used to write an R object to a file, but functions like \verb|write.csv| or \verb|write.table| specify how the output file looks. Now suppose we want to share our work with others and wish to save \verb|mydf| as a file.
 
 \begin{verbatim}
-> mydf <- read.csv("report.csv", header = TRUE, sep = ",")
+> write.csv(mydf, "report.csv")
 \end{verbatim}
 
-The \verb|read.csv| function takes in at least 1 argument: the file name. Three are given above to give more specification about how we want to read the csv file. To prevent R from interpreting \verb|report.csv| as a variable, the value is closed in quotes\footnote{A bunch of letters enclosed within quotes is called a \emph{string}. Here are some examples of strings: \texttt{"Hello"}, \texttt{"121a.a;lk!"}.}.
-The \verb|header = TRUE| indicates that the first line of this csv file contains the names of each column. If this is set to \verb|FALSE|, R sets the column names to \verb|V1|, \verb|V2|, and so on. The last argument is short for \emph{separator}. This may be whatever you want. Cryptically, a csv (comma separated value) file may not be separated by commas. Oftentimes, it is tab-separated. To accommodate this, one can say \verb|sep = "\t"|. The backslash here \vocab{escapes} the succeeding character \verb|t| and instead interprets this as a tab.
+The \verb|write.csv| function takes in at least 1 argument: the file name. To prevent R from interpreting \verb|report.csv| as a variable, the value is closed in quotes. A bunch of letters enclosed within quotes is called a \vocab{string}\footnote{Here are other examples of strings: \texttt{"Hello"}, \texttt{"121a.a;lk!"}.}.
+
+Here is the resulting file \verb|report.csv|:
+\begin{verbatim}
+"","atomic_number","name","mass"
+"1",1,"H",1.0079
+"2",2,"He",4.0026
+"3",3,"Li",6.941
+\end{verbatim}
+The first column was filled in for us. By default, \verb|write.csv| writes the first column of the csv as a bunch of row names. This may be useful in some cases, but for us it just adds a duplicate of the second column. Now, we can read this into a new data frame in a similar fashion:
+
+\begin{verbatim}
+> read.csv("report.csv")
+  X atomic_number name   mass
+1 1             1    H 1.0079
+2 2             2   He 4.0026
+3 3             3   Li 6.9410
+\end{verbatim}
+
+But that doesn't look quite right. Now, us typing \verb|write.csv(mydf, "report.csv")| is the simplest way we can write to a file. However, it makes things more difficult for the person reading your file. To make the input simple to read, we need to use \dots
+
+\subsection{Optional Arguments}
+If you were to type \verb|?read.csv| into R there would be a lot of parameters specified under \emph{Usage}. Arguments after the required arguments are called \vocab{optional arguments} or \vocab{optional parameters}. Parameter specification takes the general form \verb|tag = value|, where \verb|tag| is specific to the function being called and \verb|value| can be anything you want, though not every value is correct in every circumstance. This appears all over the place in R programs, and here we don't have the choice to use \verb|<-|. For example, since we didn't specify a \verb|sep| in \verb|read.csv|, \verb|sep| takes the value of \verb|","| by default. Keep in mind that the \vocab{tag} of optional arguments are \emph{not} variables outside of the function. These options only make sense inside of the function in which they are being called.
+
+Going back to our \verb|write.csv| example, we wish to not include the row names because they complicated things for \verb|read.csv|. This may be done simply as
+\begin{verbatim}
+> write.csv(mydf, "report.csv", row.names = FALSE)
+\end{verbatim}
+
+Done this way, we get
+\begin{verbatim}
+> read.csv("report.csv")
+  atomic_number name   mass
+1             1    H 1.0079
+2             2   He 4.0026
+3             3   Li 6.9410
+\end{verbatim}
+which is exactly what \verb|mydf| looks like.
+
+%Cryptically, a csv (comma separated value) file may not be separated by commas. Oftentimes, it is tab-separated. To accommodate this, one can say \verb|sep = "\t"|. The backslash here \vocab{escapes} the succeeding character \verb|t| and instead interprets this as a tab.
 
 \section{Some Subtleties}
 \subsection{Vectors}
@@ -133,7 +170,7 @@ The previous example used the \verb|c| function. This is one way to gather data 
 \begin{Verbatim}[frame=single, fontsize=\small]
 n <- nrow(trees)           # The number of trees
 tag <- seq(1,n)            # A sequence from 1 to n, inclusive
-lifespan <- 70*runif(n)    # Random values between 0 and 70, inclusive
+lifespan <- 70*runif(n)    # n uniformly distributed random numbers in [0,70]
 volume <- trees["Volume"]  # The volume of each tree
 \end{Verbatim}
 
@@ -165,6 +202,8 @@ A common task when working with spreadsheets is combining data from multiple sou
 \end{verbatim}
 
 This creates a sequence of strings. Notice that R is smart enough to determine that while you only specified a single string ``T'' (instead of a vector of strings of the same length as \verb|tag|), it concatenates ``T'' with each element of \verb|tag|. For example, tree 15 would be named \verb|T15|.
+
+To make our tags look nice, we must specify the \emph{separator} \verb|sep|. This may be any string and \verb|sep| is used in many other functions as well. We set \verb|sep = ""|, a.k.a. the \vocab{empty string}, a.k.a. the string with no characters. If this was left out, i.e. \verb|paste("T",tag)|, then by default the strings are concatenated using a space as separator. We would get \verb|T 15| instead of \verb|T15|. Why is this? The motivation behind this is that most of the time a user will want the values separated by spaces. Without anything, there is the \vocab{default argument} for \verb|sep|, which is a single space \verb|" "|.
 
 Now, to create a new data frame from the existing data we created, try
 \begin{verbatim}
@@ -213,9 +252,6 @@ would accomplish the same task. If we only cared about a few rows of \verb|mydf|
 > sample <- mydf[seq(4,9),]
 \end{verbatim}
 This takes the 4th through 9th rows of \verb|mydf|, inclusive.
-
-\subsection{Optional Arguments}
-Returning to the first example of creating the tree names, we had to specify that \verb|sep = ""|, or the \vocab{empty string}, or the string with no characters. If this was left out, i.e. \verb|paste("T",tag)|, then by default the strings are concatenated using a space as separator. We would get \verb|T 15| instead of \verb|T15|. Why is this? The motivation behind this is that most of the time a user will want the values separated by spaces. Without anything, there is the \vocab{default argument} for \verb|sep|, which is a single space \verb|" "|. Parameter specification takes the general form \verb|tag = value|, where \verb|tag| is specific to the function being called and \verb|value| can be anything you want, though not every value is correct in every circumstance. This appears all over the place in R programs, and here we don't have the choice to use \verb|<-|.
 
 \section{Regression and Plotting}
 
@@ -271,11 +307,11 @@ F-statistic: 951.8 on 1 and 98 DF,  p-value: < 2.2e-16
 \end{Verbatim}
 This summary is a Type I analysis of variance table. From this, we get a statistically significant result (i.e. publishable!), however viewing the plot shows the model is lacking (Fig.~\ref{linear}).
 
-\begin{figure}
-\label{linear}
+\begin{figure}[htbp]
 \centering
 \includegraphics[scale=0.5]{linear_model}
 \caption{Our first shot at fitting some data.}
+\label{linear}
 \end{figure}
 
 To see this in more depth, we may call \verb|plot(linearmodel)| which produces several plots of the data. This further indicates the model is biased at the endpoints, suggesting a linear model isn't ideal. Of course, 
@@ -354,10 +390,10 @@ pdf("C:\Users\Sam Pollard\Documents\R\sample_plot.pdf")
 All this combined makes the graphic shown in Fig. 1 
 
 \begin{figure}[ht]
-\label{quadratic}
 \centering
 \includegraphics[scale=0.6]{sample_plot}
 \caption{The figure created in Section \ref{plotting}.}
+\label{quadratic}
 \end{figure}
 
 % One final function which I will describe is the \verb|par| function. This both allows setting and saving of graphing parameters. These are passed into par like any other function argument, and typing \verb|oldpar <- par()| stores the current parameters for saving later and to restore them one would type \verb|par(oldpar)|. Typing \verb|?par| is both an enlightening and intimidating experience. There is page after page of options. Fortunately, many of these options generalize to other plotting functions. For exampke, you'll notice that I used \verb|col| in the \verb|legend| function. This is can be used to specify colors of many different parameters in \verb|plot|.
@@ -423,11 +459,11 @@ Full disclosure: there is a much simpler way to do this using functions we have 
 intersperse <- function(vec, ele) {
 	y <- vector("character", length = 2*length(vec) - 1)
 	y[1] <- vec[1]
-	vlen <- length(vec)
 	if (vlen > 1) {
-		for (i in seq(2,vlen) {
-			y[2*i] <- vec[i]
-			y[2*i + 1] <- ele
+		vlen <- length(vec)
+		for (i in seq(1,vlen)) {
+			y[2*i] <- ele
+			y[2*i + 1] <- vec[i]
 		}
 	}
 	return(y)
@@ -438,8 +474,10 @@ intersperse <- function(vec, ele) {
 
 \begin{Verbatim}[frame=single, fontsize=\small]
 intersperse <- function(vec, ele) {
+	if (length(vec) < 2) {
+		return vec
+	}
 	y <- vector("character", length = 2*length(vec) - 1)
-	# What if the length of vec is less than 2?
 	y[seq(2, length(y), 2)] <- ele
 	y[seq(1, length(y), 2)] <- vec
 	return(paste0(y, collapse = ""))

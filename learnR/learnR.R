@@ -19,16 +19,20 @@ max(trees[3]) # The same as above because we access the third column
 apply(trees, 2, mean)
 
 # 2. Basic Syntax and Examples
-name <- c("H","He","Li") # c can be thought of as "combine"
-mass <- c(1.0079,4.0026,6.941)
+name <- c("H","He","Li")        # c can be thought of as "combine"
+mass <- c(1.0079,4.0026,6.941)  # i.e. make a vector from the arguments
 atomic_number <- seq(1,length(name))
 mydf <- data.frame(atomic_number, name, mass)
+mydf # Typing the variable name prints out the variable
+# 2.1 Optional Arguments
+write.csv(mydf, "report.csv", row.names = FALSE)
+read.csv("report.csv") # Gives the same output as mydf
 
 # 3. Some Subtleties
 # 3.1 Vectors
 n <- nrow(trees)           # The number of trees
 tag <- seq(1,n)            # A sequence from 1 to n, inclusive
-lifespan <- 70*runif(n)    # Random values between 0 and 70, inclusive
+lifespan <- 70*runif(n)    # n uniformly distributed random numbers in [0,70]
 volume <- trees["Volume"]  # The Volume of each tree
 lifespan <- lifespan + 15
 
