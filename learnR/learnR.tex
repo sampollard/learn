@@ -6,7 +6,9 @@
 \usepackage[margin=1in, headheight=15pt]{geometry}
 \usepackage{amsmath, amssymb, amsthm}
 \frenchspacing % Single spacing after all periods.
-\usepackage{graphicx, hyperref, fancyvrb}
+\usepackage{graphicx, hyperref}
+\usepackage{fancyvrb}
+\VerbatimFootnotes
 
 % Change the verbatim font
 \usepackage{inconsolata}
@@ -282,7 +284,11 @@ slope <- coef(linearmodel)[2]
 curve(slope * x + intercept, add = TRUE)
 \end{Verbatim}
 
-Line 1 attempts to fit a linear model to the data. The \verb|~| character (tilde) indicates a \emph{formula} is used. With a linear model, the parameters are implied. That is, \verb|lm| reads in the simple expression \verb|noisy_data ~ time| and from it knows both the the data on which a regression should be performed and the approximate form of the equation. \verb|lm| is attempting to find the best $m$ and $b$ which satisfy the equation $f(t) = mt + b$ where $f(t)$ is the noisy data and $t$ is time. Here, $m$ and $b$ are the \emph{coefficients}. Let's see how a linear model fits:
+Line 1 attempts to fit a linear model to the data. The \verb|~| character (tilde) indicates a \emph{formula} is used. With a linear model, the parameters are implied. That is, \verb|lm| reads in the simple expression \verb|noisy_data ~ time| and from it knows both the the data on which a regression should be performed and the approximate form of the equation. \verb|lm| is attempting to find the best $m$ and $b$ which satisfy the equation $f(t) = mt + b$ where $f(t)$ is the noisy data and $t$ is time. In this context, $m$ and $b$ are the \vocab{coefficients}.
+
+The optional parameter \verb|add = TRUE| states that the curve should be added to an existing plot. The default is false, which is to say each call to \verb|curve| creates a new plot. Now, let's make these plots a bit nicer.
+
+Let's see how a linear model fits:
 
 \begin{Verbatim}[frame=single, fontsize=\small]
 > summary(linearmodel)
@@ -346,8 +352,6 @@ plot(time, noisy_data)
 curve(slope * x + intercept, add = TRUE)
 curve(p1*x^2 + p2, add = TRUE)
 \end{Verbatim}
-
-The optional parameter \verb|add = TRUE| states that the curve should be added to an existing plot. The default is false, which is to say each call to \verb|curve| creates a new plot. Now, let's make these plots a bit nicer.
 
 \begin{Verbatim}[frame=single, fontsize=\small, numbers=left]
 pdf("sample_plot.pdf") 
@@ -423,13 +427,15 @@ parenthesize <- function(x) {
 	return(paste("(", interior, ")"))	
 }
 \end{Verbatim}
-Notice that this looks like variable assignment. In fact, this is exactly what is happening. Next up we see the braces \verb|{}|. All these do is define what is inside the function. We most likely have functions which take up multiple lines of source code, so the braces show exactly when the function begins and ends. It is proper style to indent everything between sets of braces. This makes the code more readable because there may often be multiple levels of braces which can get incredibly confusing even with proper indentation.
+Notice that this looks like variable assignment. In fact, this is exactly what is happening. Next up we see the braces \verb|{}|. All these do is define what is inside the function. Programmers usually write functions which take up multiple lines of source code, so the braces show exactly when the function begins and ends. It is proper style to indent everything between sets of braces. This makes the code more readable because there may often be multiple levels of braces which can get incredibly confusing even with proper indentation.
 
 Now the function \verb|parenthesize| is \vocab{bound} to the variable \verb|parenthesize| and we can use it like we would use any other built in function:
 \begin{verbatim}
 > parenthesize(c(1,2,3,4))
 [1] "( 1 2 3 4 )"
 \end{verbatim}
+
+In R, \verb|return| is a special function which exits out of the current function and passes its argument to whatever called the current function. In the example above, the \vocab{caller} is the R interpreter. The R interpreter gets the return value of \verb|parenthesize(c(1,2,3,4))| and then since it has no variable to store it in, prints the value to the screen. We could have bound a return value of \verb|parenthesize| to a variable like we have done with other functions.
 
 The variable \verb|interior| in this context has what's called a \vocab{scope}. This is an important concept in programming and refers to when you can access particular variables. For example, once we define the function, if we try to access \verb|interior| outside of the braces defining the function we get an error:
 \begin{verbatim}
@@ -451,26 +457,77 @@ Again, we address the problem of correctly formatting data. We have seen that \v
 > protein_string <- "3G73,3CO6,1VDE,1AF5,1EVX,2OST,1QQC,1KN9,3BF0"
 \end{Verbatim}
 
-The reader may notice that second line above is basically already a comma-separated list. Suspend your disbelief and suppose that we don't already know \verb|proteins|, or that you don't want to remove all of those quotes around each protein ID. Our goal then is to have some function \verb|intersperse| which takes as input a vector and outputs that vector with commas in between the entries. So instead of typing the value of \verb|protein_string| out by hand like I did when writing this guide, we could get the same result with a function.
+The reader may notice the second line above is basically already a comma-separated list. Suspend your disbelief and suppose that we didn't set \verb|proteins| by hand, or that you don't want to remove all of those quotes around each protein ID. Our goal then is to have some function \verb|intersperse| which takes as input a vector and outputs that vector with commas in between the entries. So instead of typing the value of \verb|protein_string| out by hand like I did when writing this guide, we could get the same result with a function.
 
-Full disclosure: there is a much simpler way to do this using functions we have already seen before. These will be shown later in this section. However, for the sake of generalization I will explain this in terms of two fundamental programming language constructs: the \verb|for| loop and the \verb|if| statement.
+\subsubsection{A Pedagogical but Nasty Example}
+Full disclosure: there is a much simpler way to do this using functions we have already seen before. These will be shown later in this section. However, for the sake of generalization I will explain this in terms of two fundamental programming language constructs: the \verb|for| loop and the \verb|if| statement. For starters, only look at the first 7 lines.
 
-\begin{Verbatim}[frame=single, fontsize=\small]
+\begin{Verbatim}[frame=single, fontsize=\small, numbers=left]
 intersperse <- function(vec, ele) {
-	y <- vector("character", length = 2*length(vec) - 1)
-	y[1] <- vec[1]
+	vlen <- length(vec)
+	if (vlen >= 1) {
+		y <- vec[1]
+	} else {
+		return("")
+	}
 	if (vlen > 1) {
-		vlen <- length(vec)
-		for (i in seq(1,vlen)) {
-			y[2*i] <- ele
-			y[2*i + 1] <- vec[i]
+		for (i in seq(2,vlen)) {
+			y <- paste(y, ele, vec[i], sep = "")
 		}
 	}
 	return(y)
 }
 \end{Verbatim}
 
-% TODO: Write it the bad way
+We begin \verb|intersperse| by getting the length of our input vector. Next, we check the length of our input vector using an \verb|if| construct. The general form of this type of statement is
+\begin{verbatim}
+if (this condition is true) { # then
+        Do everything here
+} else { # Optional and executes if the condition in parentheses is false
+        Do everything here
+}
+\end{verbatim}
+
+Let's break this down further. Up until the mid-1800s, if you were to show a mathematician something like $3 = 4$ and ask, ``how do you interpret this?'' he would probably just say ``that doesn't make sense, you idiot.'' But after the pioneering work of George Boole, we are now able to see $3 = 4$ and give it meaning, specifically, ``false.'' Why is this useful? Because when we see something like \verb|vlen >= 1|\footnote{By the way, \verb|>=| is the R way to write $\ge$} in Line 3, we are not \emph{declaring} that \verb|vlen >= 1|, we are \emph{asking} if \verb|vlen >= 1|. It may not be.
+
+Thus, in Line 3, if \verb|vlen| is in fact less than one Line 6 is executed and the function returns the empty string. This means nothing else in the function is executed. This was exactly my desire: I didn't want the function to return \verb|y| on line 13 if there were no elements in \verb|vec| with which it could work.
+
+% execute everything in the braces after the \verb|else|. Since we're dealing with lengths, this means \verb|vlen| can reasonably only be zero. In this case, there is nothing to intersperse so we just return from the function. By default, \verb|return| called with no arguments returns a value called \verb|NULL|. This can be thought of from its Latin origins: nothing. Notice that \verb|NULL| is not zero. It is nothing. If this seems strange, your intuition is correct. A function returning \verb|NULL| usually indicates something went wrong. In our intersperse example, this means we input a vector with no elements. How are we supposed to intersperse commas with nothing? This seems almost silly that we have to care about such details but this is an important part of programming. The case where \verb|vlen| is zero is called an \vocab{edge case}.
+
+At a high level, there are three cases to consider when building our \verb|intersperse|:
+
+\begin{enumerate}
+	\item The vector has no elements in it (Line 6)
+	\item The vector has just one element (Line 4 executes but Lines 9--11 don't)
+	\item The vector has multiple elements (Lines 4 and 9--11 execute)
+\end{enumerate}
+The reason to split cases two and three is we desire
+\begin{verbatim}
+> intersperse(c(1,2), ",")
+[1] "1" "," "2"
+\end{verbatim}
+instead of
+\begin{verbatim}
+> intersperse(c(1,2), ",") # WRONG
+[1] "1" "," "2" ","
+\end{verbatim}
+
+The algorithms which arise from making this sort of distinction are called \vocab{fencepost algorithms}. The analogy is such: when building a fence, you need to start with a fencepost and then add on the wire followed by another post until completion. Thus, we start with our ``post'' (Line 4) and then add the ``fence'' (\verb|ele|) followed by another post (another element of \verb|vec|).
+
+If \verb|vlen > 1| is true, there is some extra work to do and for this we need the \verb|for| construct. Words like \verb|if| and \verb|for| are called \vocab{reserved words}. This means we cannot use them as variables; they are too special. Line 9 shows why \verb|for| is special: it allows repeating the commands contained in its proceeding braces. The programming jargon for this repetition is a \vocab{loop}. The statement \verb|for(i in seq(2,vlen))| translated to English is, ``assign \verb|i| to each element of the vector returned by \verb|seq(2,vlen)| in order, then do the following commands.'' The code between the braces is called the \vocab{loop body}. Suppose \verb|vlen| were 4. Then the loop body would execute the following commands:
+
+\begin{verbatim}
+y <- paste(y, ele, vec[2], sep = "")
+y <- paste(y, ele, vec[3], sep = "")
+y <- paste(y, ele, vec[4], sep = "")
+\end{verbatim}
+
+Now, we don't have to guess or know ahead of time how large \verb|vec| is. We can just get its length and let the computer do the work.
+
+\subsubsection{A Simpler Version}
+NOTE: Things are pretty rough from here on out. Proceed with caution.
+
+Here is the next iteration
 
 \begin{Verbatim}[frame=single, fontsize=\small]
 intersperse <- function(vec, ele) {
@@ -488,7 +545,7 @@ We have seen the \verb|paste| function before, and the \verb|collapse| argument.
 
 \begin{Verbatim}[frame=single, fontsize=\small]
 intersperse <- function(vec, ele) {
-	return(paste(vec, collapse = ele))
+	return(paste(vec, sep))
 }
 \end{Verbatim}
 

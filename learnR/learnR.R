@@ -111,10 +111,36 @@ parenthesize <- function(x) {
 	return(paste("(", interior, ")"))	
 }
 
+# 6.1. A (Seemingly) More Complex Function
+# 6.1.1 A Pedagogical but Nasty Example
 intersperse <- function(vec, ele) {
+	vlen <- length(vec)
+	if (vlen >= 1) {
+		y <- vec[1]
+	} else {
+		return("")
+	}
+	if (vlen > 1) {
+		for (i in seq(2,vlen)) {
+			y <- paste(y, ele, vec[i], sep = "")
+		}
+	}
+	return(y)
+}
+
+# 6.1.2. A Simpler Version
+intersperse <- function(vec, ele) {
+	if (length(vec) < 2) {
+		return vec
+	}
 	y <- vector("character", length = 2*length(vec) - 1)
-	# What if the length of vec is less than 2?
 	y[seq(2, length(y), 2)] <- ele
 	y[seq(1, length(y), 2)] <- vec
 	return(paste0(y, collapse = ""))
 }
+
+# 6.1.3. Keep It Simple, Stupid (KISS)
+intersperse <- function(vec, ele) {
+	return(paste(vec, sep))
+}
+
