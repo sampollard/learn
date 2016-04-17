@@ -112,7 +112,10 @@ parenthesize <- function(x) {
 }
 
 # 6.1. A (Seemingly) More Complex Function
-# 6.1.1 A Pedagogical but Nasty Example
+proteins <- c("3G73","3CO6","1VDE","1AF5","1EVX","2OST","1QQC","1KN9","3BF0")
+# The desired output
+protein_string <- "3G73,3CO6,1VDE,1AF5,1EVX,2OST,1QQC,1KN9,3BF0"
+
 intersperse <- function(vec, ele) {
 	vlen <- length(vec)
 	if (vlen >= 1) {
@@ -131,7 +134,7 @@ intersperse <- function(vec, ele) {
 # 6.1.2. A Simpler Version
 intersperse <- function(vec, ele) {
 	if (length(vec) < 2) {
-		return vec
+		return(vec)
 	}
 	y <- vector("character", length = 2*length(vec) - 1)
 	y[seq(2, length(y), 2)] <- ele
@@ -139,8 +142,8 @@ intersperse <- function(vec, ele) {
 	return(paste0(y, collapse = ""))
 }
 
-# 6.1.3. Keep It Simple, Stupid (KISS)
+# 6.1.3. KISS (Keep It Simple, Stupid)
 intersperse <- function(vec, ele) {
-	return(paste(vec, sep))
+	return(paste(vec, ele))
 }
 

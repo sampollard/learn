@@ -525,14 +525,29 @@ y <- paste(y, ele, vec[4], sep = "")
 Now, we don't have to guess or know ahead of time how large \verb|vec| is. We can just get its length and let the computer do the work.
 
 \subsubsection{A Simpler Version}
-NOTE: Things are pretty rough from here on out. Proceed with caution.
+Notice that at each iteration of the loop, we overwrite the variable \verb|y|. This is actually rather wasteful, because we have to create a whole new string for each iteration. While this may not make a noticeable difference for small sizes of \verb|vec|, when programming we must be aware of the runtime of each line of code we write. For example, if we are doing work on large datasets and are constantly overwriting large variables, this can make our code run very slowly.
 
-Here is the next iteration
+One solution to this is to \vocab{preallocate} space. Every variable takes up a certain amount of memory. If the variable needs to be expanded in R usually R has to create a new place with sufficient space and copy all of the data from the old location to the new location\footnote{Note that this is not true for all types of data in R. Some are able to grow without copying all of the old data, for example the \verb|list| data type.}. The exception of this is with scalars like numbers. The way numbers are stored in R allows pretty much any value you would want to work with to be stored in a constant amount of space. In particular, 64 bytes. For example, like \verb|x <- x + 2.5| will not need to allocate extra space in the case that \verb|x| gets too big\footnote{R uses \vocab{double precision floating point} numbers for all of its numerical data.}.
 
-\begin{Verbatim}[frame=single, fontsize=\small]
+One way to think of this is when you first create a variable like
+\begin{verbatim}
+> y <- "Once upon a time"
+\end{verbatim}
+this can be thought of as buying a notebook which can only hold space for 16 characters. If you do something like
+\begin{verbatim}
+> y <- paste(y, "there was a very exciting R guide online.")
+\end{verbatim}
+
+your ``notebook'' is already full, so you must buy a new notebook which can hold space for $16 + 1 + 41 = 58$ characters and copy everything into that notebook. This sounds rather silly when talking about notebooks but this is essentially how R handles variable assignment.
+
+One last thing to keep in mind is \emph{why} you are programming in R in the first place. Oftentimes it will be because you don't want to do something by hand, or doing something by hand would take a prohibitively long time. Likewise, the business of copying your notes into new notebooks sounds awful by hand, but computers are fast at doing these things. When dealing with such small sets of data, the time difference is between maybe 0.001 second and 0.01 second. Big deal. You may hear this also as an argument as to why R is not a ``good'' programming language; it is slow. Of course, R is not meant to be used in every context. There are many things in R that are incredibly easy compared to other languages. The power of R is not in how quickly the computer can run your code, but rather how quickly you as a programmer can accomplish your goal. With this in mind, one important philosophy of programming is to never \vocab{preoptimize} your code. Yes, the first version of \verb|intersperse| I wrote may not be the best version possible. However, if it works for your purposes, that is good enough.
+
+Well. I kind of went off on a tangent there. The whole point of this is to \emph{simplify} the \verb|intersperse| function. Without further ado, here is the next iteration:
+
+\begin{Verbatim}[frame=single, fontsize=\small, numbers=left]
 intersperse <- function(vec, ele) {
 	if (length(vec) < 2) {
-		return vec
+		return(vec)
 	}
 	y <- vector("character", length = 2*length(vec) - 1)
 	y[seq(2, length(y), 2)] <- ele
@@ -541,29 +556,42 @@ intersperse <- function(vec, ele) {
 }
 \end{Verbatim}
 
-We have seen the \verb|paste| function before, and the \verb|collapse| argument. Now, what if we just let R handle the hard work for us?
+Line 5 is the part which preallocates a vector to store the return value. We specifically tell R how much data to preallocate: twice the length of the input vector minus one. The last line of the function, Line 8, uses the \verb|paste0| function with the \verb|collapse| option. This is to collapse our vector into a string. As before, this is a way to format the data correctly so we get the correct output. To see why this is required, try changing the last line to just \verb|return(y)|. What sort of output do 
+you see?
+
+\subsubsection{KISS (Keep It Simple, Stupid)}
+We have seen the \verb|paste| function before as well as the \verb|collapse| option. Now, what if we just let R handle the hard work for us?
 
 \begin{Verbatim}[frame=single, fontsize=\small]
 intersperse <- function(vec, ele) {
-	return(paste(vec, sep))
+	return(paste(vec, collapse = ele))
 }
 \end{Verbatim}
 
-Using \verb|intersperse| we get
+To ensure \verb|intersperse| gives the correct output, we have to bring out the first \vocab{test case} of the guide.
 \begin{verbatim}
 > protein_string_with_intersperse == intersperse(proteins, ",")
 > protein_string_with_intersperse == protein_string
 [1] TRUE
 \end{verbatim}
-What I just showed you was the first test case of this guide.
+
+This is good practice: for each little chunk of code you write, it is good to write tests to make sure the code is doing what you expect. We can further automate this by using the \verb|stopifnot| funcion. This will return an error if any of the arguments you pass it evaluate to \verb|FALSE|. This way, we don't have to look at results and make sure they are all true, we can just insert these into our R source code. Here are a few more test cases:
+
+\begin{Verbatim}[frame=single, fontsize=\small]
+stopifnot(intersperse(proteins, ",") == protein_string,
+          intersperse(c("Just one"), "-") == "Just one",
+          intersperse(c(), "") == "")
+\end{Verbatim}
+
+For this method of testing, no news is good news. That is, nothing is said if the program is functioning correctly. This is nice to avoid too much output when running your programs.
 
 \newpage
 \part{Exercises}
 
-Just as you cannot learn how to play piano by watching someone else play, you cannot learn to program by watching (or reading about) someone else program.
+Just as you cannot learn how to play piano by watching someone else play, you cannot learn to program by watching---or rather, reading---someone else program.
 
 \begin{enumerate}
-	\item { Write your own \verb|head| function. Call this function \verb|Head|. Notice that this is considered an entirely different function in R. This is because R is case sensitive. Likewise, the variable \verb|X| is different from \verb|x|. Recall that \verb|head| takes as input some object and outputs the first few rows (or elements) of that object. Test your function on the following inputs:
+	\item { Write your own \verb|head| function. Call this function \verb|Head|. Notice that this is considered an entirely different function in R. This is because R is case sensitive. Likewise, the variable \verb|X| is different from \verb|x|. Recall that \verb|head| takes as input some object and outputs the first few rows (or elements) of that object. Test your function by running the following code:
 	\begin{verbatim}
 		Head(seq(1000))
 		data(Puromycin) # Load in a sample data.frame
@@ -571,6 +599,18 @@ Just as you cannot learn how to play piano by watching someone else play, you ca
 		Head(5)
 	\end{verbatim}
 	Make sure this matches the ouput of calling \verb|head| with the same inputs.
+	}
+	
+	\item { Write a function that asks the user for his/her name and outputs the name in the form last name, first initial. For example
+	\begin{verbatim}
+		> changeName()
+		Type your name: Sam Pollard
+		[1] Pollard, S.
+	\end{verbatim}
+	
+	To do this you will need the \verb|readline| function. To get more information about this function, remember you can type \verb|?readline| into the interpreter. This will open your web browser in Windows or just display the text in the terminal in Linux. If in Linux, you can scroll up and down with the arrow keys and can quit by typing \verb|q|.
+	
+	To further refine this, consider cases where the user accidentally presses enter without typing anything. Furthermore, what about people with last names with spaces in between such as Johannes van der Waals?
 	}
 
 \end{enumerate}
