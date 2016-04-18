@@ -69,7 +69,13 @@ intercept <- coef(linearmodel)[1]
 slope <- coef(linearmodel)[2]
 curve(slope * x + intercept, add = TRUE)
 linearanalysis <- summary(linearmodel)
-# quadratic interpreted as f(x) = p1 x^2 + p2 where p1 and p2 are parameters
+
+# Create an exponential model
+expmodel <- lm(log(noisy_data) ~ time)
+expintercept <- coef(expmodel)[2]
+expslope <- coef(expmodel)[1]
+curve(exp(expintercept + expslope*x), add = TRUE)
+
 # Here is the model we guess the data to follow
 quadratic <- noisy_data ~ p1*time^2 + p2
 model <- nls(quadratic, start = list(p1=0, p2=0))

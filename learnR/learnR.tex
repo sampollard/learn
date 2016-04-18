@@ -284,9 +284,7 @@ slope <- coef(linearmodel)[2]
 curve(slope * x + intercept, add = TRUE)
 \end{Verbatim}
 
-Line 1 attempts to fit a linear model to the data. The \verb|~| character (tilde) indicates a \emph{formula} is used. With a linear model, the parameters are implied. That is, \verb|lm| reads in the simple expression \verb|noisy_data ~ time| and from it knows both the the data on which a regression should be performed and the approximate form of the equation. \verb|lm| is attempting to find the best $m$ and $b$ which satisfy the equation $f(t) = mt + b$ where $f(t)$ is the noisy data and $t$ is time. In this context, $m$ and $b$ are the \vocab{coefficients}.
-
-The optional parameter \verb|add = TRUE| states that the curve should be added to an existing plot. The default is false, which is to say each call to \verb|curve| creates a new plot. Now, let's make these plots a bit nicer.
+Line 1 attempts to fit a linear model to the data. The \verb|~| character (tilde) indicates a \emph{formula} is used. With a linear model, the parameters are implied. That is, \verb|lm| reads in the simple expression \verb|noisy_data ~ time| and from it knows both the the data on which a regression should be performed and the approximate form of the equation. \verb|lm| is attempting to find the best $m$ and $b$ which satisfy the equation $f(t) = mt + b$ where $f(t)$ is the noisy data and $t$ is time. In this context, $m$ and $b$ are the \vocab{coefficients}. The optional parameter \verb|add = TRUE| states that the curve should be added to an existing plot. The default is false, which is to say each call to \verb|curve| creates a new plot.
 
 Let's see how a linear model fits:
 
@@ -315,15 +313,71 @@ This summary is a Type I analysis of variance table. From this, we get a statist
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[scale=0.5]{linear_model}
+\includegraphics[scale=0.5]{linear_model.pdf}
 \caption{Our first shot at fitting some data.}
 \label{linear}
 \end{figure}
 
-To see this in more depth, we may call \verb|plot(linearmodel)| which produces several plots of the data. This further indicates the model is biased at the endpoints, suggesting a linear model isn't ideal. Of course, 
+To see this in more depth, we may call \verb|plot(linearmodel)| which produces several plots of the data. This further indicates the model is biased at the endpoints, suggesting a linear model isn't ideal.
 
-To fit a nonlinear curve to the data we must use a different function, \verb|nls| (nonlinear least squares). Here is how that would be performed:
+Forget for a moment that we know the model follows a quadratic function. Looking at the data one can see the plot could also be considered exponential since the growth rate increases as time increases. With a linear model, we did not assume much about the data; we just assumed a line would fit the data and let R do the work to find the best $m$ and $b$. We can do the same thing for an exponential model, though we have to be a little more clever. In general, we can describe exponential growth functions using the general form
+\[
+	f(t) = ce^{kt}
+\]
+where $c$ and $k$ are real numbers. The $c$ is known as the starting population and $k$ is the \vocab{growth rate}. Alternatively, since $c$ and $k$ can be any real number, let us make a new constant $b = \ln(c)$. Then we may rewrite this family of functions as
+\[
+	f(t) = ce^{kt} = e^{\ln(c)} e^{kt} = e^{b} e^{kt} = e^{b + kt}.
+\]
+
+This is definitely not a linear model, but suppose we take the natural logarithm of both sides and exploit some properties of logarithms. This yields
+\begin{align*}
+	\ln(f(t)) &= \ln(e^{b + kt}) \\
+	&= b + kt,
+\end{align*}
+which \emph{is} a linear model in the logarithm of $f(t)$. We forced all values to be positive near the beginning of the section, which is required for the natural logarithm to make sense. Fortunately, the natural logarithm is so common that in R the command to compute it is simple: \verb|log|. Thus, instead of forming a linear model using just \verb|noisy_data ~ time|, we instead want \verb|log(noisy_data) ~ time|. To create this model we use
+
 \begin{Verbatim}[frame=single, fontsize=\small]
+expmodel <- lm(log(noisy_data) ~ time)
+expintercept <- coef(expmodel)[2]
+expslope <- coef(expmodel)[1]
+curve(exp(expintercept + expslope*x), add = TRUE)
+\end{Verbatim}
+
+Now that we have two models, how do we determine which is better? Let's look at \verb|summary| again:
+
+\begin{Verbatim}[frame=single, fontsize=\small]
+> summary(expmodel)
+
+Call:
+lm(formula = log(noisy_data) ~ time)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-2.51876 -0.08660  0.02944  0.13864  0.67754 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  2.12047    0.06883   30.81   <2e-16 ***
+time         0.27124    0.01189   22.81   <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.3467 on 98 degrees of freedom
+Multiple R-squared:  0.8415,	Adjusted R-squared:  0.8399 
+F-statistic: 520.2 on 1 and 98 DF,  p-value: < 2.2e-16
+\end{Verbatim}
+
+One way to judge which model is better is to look at the residual standard error (RSE) of both models. The linear model has an RSE of 9.458 while the exponential model has just 0.3467. Furthermore, overlaying the two models indicates the exponential model seems to look better (see Fig.~\ref{expmodel}). However, visualizing the data can be difficult for data in higher dimensions.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[scale=0.5]{expmodel.pdf}
+\caption{Creating an exponential model.}
+\label{expmodel}
+\end{figure}
+
+However, we know the answer is quadratic because it was made that way. To fit a nonlinear curve to the data we may use a different function, \verb|nls| (nonlinear least squares). Here is how that would be performed:
+\begin{Verbatim}[frame=single, fontsize=\small, numbers=left]
 quadratic <- noisy_data ~ p1*time^2 + p2
 model <- nls(quadratic, start = list(p1=0, p2=0))
 # Plot the new, least-squares quadratic
@@ -331,13 +385,14 @@ p1 <- coef(model)[1]
 p2 <- coef(model)[2]
 curve(p1*x^2 + p2, from = lb, to = ub, add = TRUE)
 \end{Verbatim}
+
+Line 1 is creating a general formula. This time, we have to specifically state the parameters \verb|p1| and \verb|p2|. Notice that these are not variables we have declared. That's okay; they are simply placeholders telling R what parameters it can mess with to get the best curve to fit the data. In Line 2, we specify using the optional parameter \verb|start| that \verb|p1| and \verb|p2| should both start at zero. This is not required, but if you happen to know about how the data should look, rough estimates of the parameters can help \verb|nls| arrive at a good solution. Here, using the quadratic model fits even better because that was exactly how the data was created.
+
 % To add:
 
 % Plot & save plot output as NOT A PDF!
 % Save output to a file
 % The Resources section contains a link to a web page describing the \verb|par| function, which can be thought of as \emph{parameters} for plotting. Because of R's default function arguments, you will almost never have to worry about all of the dozens of parameters.
-
-In this case we can look at the plots and see that a quadratic model fits better.
 
 % TODO: This above too detail oriented and is not really relevant
 
@@ -352,7 +407,7 @@ plot(time, noisy_data)
 curve(slope * x + intercept, add = TRUE)
 curve(p1*x^2 + p2, add = TRUE)
 \end{Verbatim}
-
+Below is one way to annotate the plot and save it to a pdf.
 \begin{Verbatim}[frame=single, fontsize=\small, numbers=left]
 pdf("sample_plot.pdf") 
 
@@ -391,13 +446,13 @@ Lastly, once you're satisfied with the graph the function \verb|dev.off()| turns
 \begin{verbatim}
 pdf("C:\Users\Sam Pollard\Documents\R\sample_plot.pdf")
 \end{verbatim}
-All this combined makes the graphic shown in Fig. 1 
+All this combined makes the graphic shown in Fig.~\ref{sample_plot}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[scale=0.6]{sample_plot}
+\includegraphics[scale=0.6]{sample_plot.pdf}
 \caption{The figure created in Section \ref{plotting}.}
-\label{quadratic}
+\label{sample_plot}
 \end{figure}
 
 % One final function which I will describe is the \verb|par| function. This both allows setting and saving of graphing parameters. These are passed into par like any other function argument, and typing \verb|oldpar <- par()| stores the current parameters for saving later and to restore them one would type \verb|par(oldpar)|. Typing \verb|?par| is both an enlightening and intimidating experience. There is page after page of options. Fortunately, many of these options generalize to other plotting functions. For exampke, you'll notice that I used \verb|col| in the \verb|legend| function. This is can be used to specify colors of many different parameters in \verb|plot|.
@@ -410,8 +465,6 @@ This concludes the first part of the guide. You are missing many important aspec
 
 \clearpage
 \part{Learn You Some R, ``In Theory''}
-\textbf{Note: This part of the guide is far from complete.}
-
 This part of the guide attempts to give some general programming knowledge as opposed to some useful tricks. This can be thought of as learning how to build a fishing rod instead of learning how to fish. The benefit to the theoretical side is these concepts apply to every other programming language. The drawback is even if you know how to build a fishing rod, you can still be a terrible fisher.
 
 \section{Functions}\label{functions}
@@ -570,7 +623,7 @@ intersperse <- function(vec, ele) {
 
 To ensure \verb|intersperse| gives the correct output, we have to bring out the first \vocab{test case} of the guide.
 \begin{verbatim}
-> protein_string_with_intersperse == intersperse(proteins, ",")
+> protein_string_with_intersperse <- intersperse(proteins, ",")
 > protein_string_with_intersperse == protein_string
 [1] TRUE
 \end{verbatim}
@@ -611,6 +664,9 @@ Just as you cannot learn how to play piano by watching someone else play, you ca
 	To do this you will need the \verb|readline| function. To get more information about this function, remember you can type \verb|?readline| into the interpreter. This will open your web browser in Windows or just display the text in the terminal in Linux. If in Linux, you can scroll up and down with the arrow keys and can quit by typing \verb|q|.
 	
 	To further refine this, consider cases where the user accidentally presses enter without typing anything. Furthermore, what about people with last names with spaces in between such as Johannes van der Waals?
+	}
+	
+	\item { How would you create a quadratic model using the \verb|lm| function? This will require transforming the data.
 	}
 
 \end{enumerate}
