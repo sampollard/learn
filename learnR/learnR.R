@@ -72,8 +72,8 @@ linearanalysis <- summary(linearmodel)
 
 # Create an exponential model
 expmodel <- lm(log(noisy_data) ~ time)
-expintercept <- coef(expmodel)[2]
-expslope <- coef(expmodel)[1]
+expintercept <- coef(expmodel)[1]
+expslope <- coef(expmodel)[2]
 curve(exp(expintercept + expslope*x), add = TRUE)
 
 # Here is the model we guess the data to follow

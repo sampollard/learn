@@ -10,7 +10,7 @@
 \usepackage{fancyvrb}
 \VerbatimFootnotes
 
-% Change the verbatim font
+%% Change the verbatim font
 \usepackage{inconsolata}
 \usepackage[T1]{fontenc}
 
@@ -338,8 +338,8 @@ which \emph{is} a linear model in the logarithm of $f(t)$. We forced all values 
 
 \begin{Verbatim}[frame=single, fontsize=\small]
 expmodel <- lm(log(noisy_data) ~ time)
-expintercept <- coef(expmodel)[2]
-expslope <- coef(expmodel)[1]
+expintercept <- coef(expmodel)[1]
+expslope <- coef(expmodel)[2]
 curve(exp(expintercept + expslope*x), add = TRUE)
 \end{Verbatim}
 
@@ -651,7 +651,7 @@ Just as you cannot learn how to play piano by watching someone else play, you ca
 		Head(Puromycin)
 		Head(5)
 	\end{verbatim}
-	Make sure this matches the ouput of calling \verb|head| with the same inputs.
+	Make sure this matches the ouput of calling \verb|head| with the same inputs. Hint: This should be broken up into a couple cases depending on the type of data being input. You can check the kind of data using the \verb|class|. For simplicity, assume that the class of the function is either a \verb|data.frame| or something where the \verb|length| function makes sense.
 	}
 	
 	\item { Write a function that asks the user for his/her name and outputs the name in the form last name, first initial. For example
@@ -671,12 +671,6 @@ Just as you cannot learn how to play piano by watching someone else play, you ca
 
 \end{enumerate}
 
-% A less stupid function would be to intersperse
-
-% Exercise: Create a function which takes in a full name and returns the name with the last name followed by first initial.
-% For example,
-% Sam Pollard would be returned as Pollard S.
-% How would you test that this is correct? What about strange names like Johannes van der Waals?
 \clearpage
 \section{Resources}
 Arguably the most useful resource you can make use of in R is the \verb|help| function. You pass \verb|help| any function as an argument, which will direct you to an online help source. For example, \verb|help(rbind)|. This is the same as \verb|?rbind|.
