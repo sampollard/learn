@@ -661,12 +661,12 @@ Just as you cannot learn how to play piano by watching someone else play, you ca
 		[1] Pollard, S.
 	\end{verbatim}
 	
-	To do this you will need the \verb|readline| function. To get more information about this function, remember you can type \verb|?readline| into the interpreter. This will open your web browser in Windows or just display the text in the terminal in Linux. If in Linux, you can scroll up and down with the arrow keys and can quit by typing \verb|q|.
+	To do this you will need the \verb|readline| function. To get more information about this function, remember you can type \verb|?readline| into the interpreter. This will open your web browser in Windows or just display the text in the terminal in Linux. If in Linux, you can scroll up and down with the arrow keys and can quit by typing \verb|q|. Two other functions which you may need are \verb|substr| and \verb|strsplit|.
 	
 	To further refine this, consider cases where the user accidentally presses enter without typing anything. Furthermore, what about people with last names with spaces in between such as Johannes van der Waals?
 	}
 	
-	\item { How would you create a quadratic model using the \verb|lm| function? This will require transforming the data.
+	\item { How would you create a quadratic model using the \verb|lm| function? This will require transforming the data. The quadratic formula used in \verb|nls| in this guide used a limited form of the quadratic: $f(x) = ax^2 + c$. It is fine to assume this is the form of the quadratic model, though in general one would need an extra parameter to describe every possible quadratic function: $f(x) = ax^2 + bx + c$.
 	}
 
 \end{enumerate}
