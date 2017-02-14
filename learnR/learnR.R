@@ -150,6 +150,6 @@ intersperse <- function(vec, ele) {
 
 # 6.1.3. KISS (Keep It Simple, Stupid)
 intersperse <- function(vec, ele) {
-	return(paste(vec, ele))
+	return(paste(vec, collapse = ele))
 }
 
